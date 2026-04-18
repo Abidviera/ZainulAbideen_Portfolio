@@ -192,13 +192,9 @@ body {
 }
 
 /* ── Scrollbar ─────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover { background: #007AFF; }
+::-webkit-scrollbar { display: none; }
+::-moz-scrollbar { display: none; }
+html { scrollbar-width: none; }
 
 /* ── Selection ─────────────────────────────────────────────────────── */
 ::selection {

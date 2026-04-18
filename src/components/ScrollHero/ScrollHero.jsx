@@ -164,9 +164,10 @@ export default function ScrollHero() {
         }, 0.5);
       }
 
-      // 6. CTA buttons — scale + fade stagger
+      // 6. CTA buttons — set hidden first, then scale + fade stagger
       const btns = actionsRef.current?.querySelectorAll('.sh-btn');
       if (btns?.length) {
+        gsap.set(btns, { opacity: 0, y: 20, scale: 0.92 });
         tl.to(btns, {
           opacity: 1,
           y: 0,
@@ -177,9 +178,10 @@ export default function ScrollHero() {
         }, 1.0);
       }
 
-      // 7. Stats — stagger slide up
+      // 7. Stats — set hidden first, then stagger slide up
       const statItems = statsRef.current?.querySelectorAll('.sh-stat');
       if (statItems?.length) {
+        gsap.set(statItems, { opacity: 0, y: 24 });
         tl.to(statItems, {
           opacity: 1,
           y: 0,
@@ -196,6 +198,21 @@ export default function ScrollHero() {
           duration: 0.6,
           ease: 'power2.out',
         }, 1.5);
+      }
+
+      // 8b. Description scroll exit — fade out independently
+      if (descRef.current) {
+        gsap.to(descRef.current, {
+          y: -60,
+          opacity: 0,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top 45%',
+            end: `+=${window.innerHeight * 1.5}`,
+            scrub: 1,
+          },
+        });
       }
 
       // 9. Scroll-driven exit — entire text fades out as user scrolls
@@ -217,8 +234,8 @@ export default function ScrollHero() {
           ease: 'none',
           scrollTrigger: {
             trigger: containerRef.current,
-            start: 'top top',
-            end: `+=${window.innerHeight * 1.2}`,
+            start: 'top 45%',
+            end: `+=${window.innerHeight * 1.5}`,
             scrub: 1,
           },
         });
@@ -231,7 +248,7 @@ export default function ScrollHero() {
           ease: 'none',
           scrollTrigger: {
             trigger: containerRef.current,
-            start: 'top top',
+            start: 'top 45%',
             end: `+=${window.innerHeight * 0.5}`,
             scrub: 1,
           },

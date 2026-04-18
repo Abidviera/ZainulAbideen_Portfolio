@@ -149,9 +149,11 @@
   font-family: var(--font-body);
   font-size: clamp(13px, 1.2vw, 16px);
   line-height: 1.75;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.7);
   max-width: 460px;
   margin: 0 0 32px;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 .scroll-hero-actions {
@@ -175,6 +177,8 @@
   letter-spacing: 0.01em;
   white-space: nowrap;
   flex-shrink: 0;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 .scroll-cta-primary {
@@ -213,6 +217,8 @@
   align-items: flex-start;
   gap: 4px;
   white-space: nowrap;
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }
 
 .scroll-stat-num {
