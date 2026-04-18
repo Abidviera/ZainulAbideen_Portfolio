@@ -1,3 +1,4 @@
+/* ── Scroll Hero ─────────────────────────────────────────────── */
 .scroll-hero-container {
   position: relative;
   height: 600vh;
@@ -22,23 +23,23 @@
   display: block;
 }
 
-/* Strong gradient overlay — darkens the left half where text lives */
+/* Cinematic dark gradient — text on left, image fades right */
 .scroll-hero-gradient {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: linear-gradient(
     to right,
-    rgba(8, 6, 13, 0.88) 0%,
-    rgba(8, 6, 13, 0.75) 30%,
-    rgba(8, 6, 13, 0.40) 55%,
-    rgba(8, 6, 13, 0.10) 80%,
+    rgba(29, 29, 31, 0.92) 0%,
+    rgba(29, 29, 31, 0.78) 28%,
+    rgba(29, 29, 31, 0.45) 52%,
+    rgba(29, 29, 31, 0.12) 78%,
     transparent 100%
   );
   pointer-events: none;
 }
 
-/* Loading overlay */
+/* ── Loading Overlay ────────────────────────────────────────── */
 .load-overlay {
   position: absolute;
   inset: 0;
@@ -48,13 +49,13 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: #08060d;
+  background: #1d1d1f;
 }
 
 .load-bar-wrap {
   width: 240px;
   height: 2px;
-  background: var(--accent-bg);
+  background: rgba(0, 122, 255, 0.15);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -74,7 +75,7 @@
   text-transform: uppercase;
 }
 
-/* Text overlay */
+/* ── Text Overlay ────────────────────────────────────────────── */
 .scroll-hero-text {
   position: absolute;
   left: 0;
@@ -86,17 +87,12 @@
   align-items: flex-start;
   justify-content: center;
   padding: 120px 80px 80px;
-  /* Wide enough to fit all text, padding keeps it in dark zone */
-  width: 100%;
-  max-width: 780px;
+  width: auto;
+  right: 52%;
 }
 
-/* Label chip */
-.scroll-hero-label {
-  margin-bottom: 20px;
-}
+.scroll-hero-label { margin-bottom: 20px; }
 
-/* Name — large, bold, white */
 .scroll-hero-name {
   font-family: var(--font-display);
   font-size: clamp(42px, 5vw, 80px);
@@ -105,25 +101,21 @@
   letter-spacing: -0.03em;
   color: #ffffff;
   margin: 0 0 20px;
-  /* Characters flow inline — NO wrap */
   display: flex;
   flex-wrap: nowrap;
   overflow: hidden;
   text-shadow:
-    0 2px 20px rgba(0, 0, 0, 0.4),
-    0 0 40px rgba(0, 0, 0, 0.2);
+    0 2px 20px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(0, 0, 0, 0.2);
 }
 
-/* Characters animate in from below */
 .scroll-hero-name .char {
   display: inline-block;
   opacity: 0;
-  transform: translateY(100%);
-  transform-origin: bottom center;
+  transform: translateY(110%);
   will-change: transform, opacity;
 }
 
-/* Subtitle row */
 .scroll-hero-subtitle {
   font-family: var(--font-display);
   font-size: clamp(13px, 1.5vw, 18px);
@@ -141,9 +133,9 @@
 .scroll-hero-subtitle .subtitle-word {
   opacity: 0;
   animation: wordReveal 0.8s ease forwards;
+  animation-fill-mode: forwards;
 }
 
-/* Description */
 .scroll-hero-desc {
   font-family: var(--font-body);
   font-size: clamp(13px, 1.2vw, 16px);
@@ -151,16 +143,12 @@
   color: rgba(255, 255, 255, 0.6);
   max-width: 460px;
   margin: 0 0 32px;
-
-  
 }
 
-/* CTA row */
 .scroll-hero-actions {
   display: flex;
   gap: 14px;
   margin-bottom: 40px;
-  
 }
 
 .scroll-cta-primary {
@@ -175,7 +163,7 @@
   padding: 12px 24px;
   border-radius: 9999px;
   transition: all 0.3s var(--ease-bounce);
-  box-shadow: 0 4px 20px rgba(255, 79, 0, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
   text-decoration: none;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -183,9 +171,9 @@
 }
 
 .scroll-cta-primary:hover {
-  background: var(--accent-hover);
+  background: #0071e3;
   transform: translateY(-3px);
-  box-shadow: 0 8px 32px rgba(255, 79, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 122, 255, 0.35);
 }
 
 .scroll-cta-secondary {
@@ -198,8 +186,8 @@
   background: transparent;
   padding: 12px 24px;
   border-radius: 9999px;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s var(--ease-smooth);
   text-decoration: none;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -207,18 +195,16 @@
 }
 
 .scroll-cta-secondary:hover {
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.45);
   color: #fff;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
   transform: translateY(-2px);
 }
 
-/* Stats row */
 .scroll-hero-stats {
   display: flex;
   align-items: center;
   gap: 28px;
-  
   flex-wrap: nowrap;
 }
 
@@ -237,8 +223,7 @@
   color: #ffffff;
   letter-spacing: -0.03em;
   line-height: 1;
-  text-shadow:
-    0 2px 12px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
 .scroll-stat-label {
@@ -256,7 +241,7 @@
   flex-shrink: 0;
 }
 
-/* Scroll indicator */
+/* ── Scroll Indicator ───────────────────────────────────────── */
 .scroll-indicator {
   position: absolute;
   right: 6vw;
@@ -285,7 +270,7 @@
   animation: bounce 2s ease infinite;
 }
 
-/* Frame counter */
+/* ── Frame Counter ──────────────────────────────────────────── */
 .frame-counter {
   position: absolute;
   bottom: 32px;
@@ -293,19 +278,14 @@
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 2px;
-  color: rgba(255, 79, 0, 0.7);
+  color: rgba(0, 122, 255, 0.6);
   z-index: 3;
 }
 
-/* Animations */
+/* ── Animations ─────────────────────────────────────────────── */
 @keyframes wordReveal {
   from { opacity: 0; transform: translateY(20px) skewY(2deg); }
   to { opacity: 1; transform: translateY(0) skewY(0); }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeIn {
@@ -318,7 +298,7 @@
   50% { transform: translateY(8px); }
 }
 
-/* Responsive */
+/* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .scroll-hero-text {
     padding: 100px 48px 60px;
@@ -343,9 +323,7 @@
     flex-wrap: wrap;
   }
 
-  .scroll-stat-num {
-    font-size: 22px;
-  }
+  .scroll-stat-num { font-size: 22px; }
 
   .scroll-hero-actions {
     flex-direction: column;
@@ -359,21 +337,15 @@
     text-align: center;
   }
 
-  .scroll-indicator {
-    right: 4vw;
-    top: 45%;
-  }
-
-  .frame-counter {
-    right: 4vw;
-  }
+  .scroll-indicator { right: 4vw; top: 45%; }
+  .frame-counter { right: 4vw; }
 
   .scroll-hero-gradient {
     background: linear-gradient(
       to top,
-      rgba(8, 6, 13, 0.90) 0%,
-      rgba(8, 6, 13, 0.60) 40%,
-      rgba(8, 6, 13, 0.20) 70%,
+      rgba(29, 29, 31, 0.95) 0%,
+      rgba(29, 29, 31, 0.65) 40%,
+      rgba(29, 29, 31, 0.25) 70%,
       transparent 100%
     );
   }

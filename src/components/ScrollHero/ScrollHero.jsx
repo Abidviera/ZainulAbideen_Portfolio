@@ -115,9 +115,9 @@ export default function ScrollHero() {
     });
   }, [ready]);
 
-  const subtitleWords = ['Frontend', 'Developer', '&', 'Designer'];
+  const subtitleWords = ['Full', 'Stack', 'Developer', '&', 'Team Lead'];
   const description =
-    'Crafting pixel-perfect, performant interfaces with attention to detail and user experience.';
+    'Building scalable enterprise solutions with ASP.NET Core, Angular, React, NestJS, and Azure Cloud.';
 
   return (
     <div ref={containerRef} className="scroll-hero-container">
@@ -139,7 +139,7 @@ export default function ScrollHero() {
 
           {/* Name */}
           <h1 ref={nameRef} className="scroll-hero-name">
-            {'Zainul Abideen'.split('').map((c, i) => (
+            {'Zainul Abideen EH'.split('').map((c, i) => (
               <span key={i} className="char">
                 {c === ' ' ? '\u00A0' : c}
               </span>
@@ -179,13 +179,13 @@ export default function ScrollHero() {
             </div>
             <div className="scroll-stat-divider" />
             <div className="scroll-stat">
-              <span className="scroll-stat-num">50+</span>
+              <span className="scroll-stat-num">13+</span>
               <span className="scroll-stat-label">Projects</span>
             </div>
             <div className="scroll-stat-divider" />
             <div className="scroll-stat">
-              <span className="scroll-stat-num">30+</span>
-              <span className="scroll-stat-label">Happy Clients</span>
+              <span className="scroll-stat-num">50K+</span>
+              <span className="scroll-stat-label">Users Served</span>
             </div>
           </div>
         </div>

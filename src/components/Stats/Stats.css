@@ -1,0 +1,305 @@
+/* ── Apple Stats Section ──────────────────────────────────────────────── */
+.apple-stats-section {
+  padding: 120px 0 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle background orbs — Apple gradient feel */
+.apple-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.apple-bg-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.06) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+  filter: blur(80px);
+}
+
+.apple-bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(175, 82, 222, 0.04) 0%, transparent 70%);
+  bottom: -80px;
+  left: -80px;
+  filter: blur(80px);
+}
+
+.apple-bg-orb-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(52, 199, 89, 0.03) 0%, transparent 70%);
+  top: 50%;
+  left: 40%;
+  filter: blur(60px);
+}
+
+/* ── Apple Window ────────────────────────────────────────────────────── */
+.apple-window {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 24px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.04),
+    0 4px 16px rgba(0, 0, 0, 0.04),
+    0 16px 48px rgba(0, 0, 0, 0.06),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  position: relative;
+}
+
+/* macOS window chrome bar */
+.apple-window-chrome {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 12px;
+  position: relative;
+}
+
+.apple-window-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.apple-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.apple-dot:hover {
+  transform: scale(1.15);
+}
+
+.apple-dot-red {
+  background: #FF5F57;
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+.apple-dot-yellow {
+  background: #FEBC2E;
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+.apple-dot-green {
+  background: #28C840;
+  box-shadow:
+    inset 0 -2px 4px rgba(0, 0, 0, 0.08),
+    0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+.apple-window-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.35);
+  letter-spacing: 0;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.apple-window-spacer {
+  flex: 1;
+}
+
+/* Window content area */
+.apple-window-content {
+  padding: 48px 40px 40px;
+}
+
+/* Title typography — Apple SF Pro inspired */
+.apple-stats-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin-bottom: 10px;
+}
+
+.apple-stats-subtitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+/* Thin hairline divider — Apple style */
+.apple-stats-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 32px 0;
+}
+
+/* Stats grid */
+.apple-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+/* Individual stat cards */
+.apple-stat-card {
+  position: relative;
+  padding: 28px 24px;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  cursor: default;
+}
+
+.apple-stat-card:last-child {
+  border-right: none;
+}
+
+.apple-stat-card:hover {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.apple-stat-card:hover .apple-stat-shine {
+  opacity: 1;
+}
+
+.apple-stat-card:hover .apple-stat-number {
+  transform: translateY(-2px);
+}
+
+/* Subtle shine sweep on hover */
+.apple-stat-shine {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0) 50%
+  );
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.apple-stat-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Numbers — large, bold, Apple-style */
+.apple-stat-number {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4vw, 56px);
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-bottom: 8px;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.apple-stat-suffix {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.apple-stat-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.6);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.apple-stat-desc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.35);
+  line-height: 1.45;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .apple-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .apple-stat-card:nth-child(2) {
+    border-right: none;
+  }
+
+  .apple-stat-card:nth-child(3),
+  .apple-stat-card:nth-child(4) {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+}
+
+@media (max-width: 640px) {
+  .apple-stats-section {
+    padding: 80px 0 60px;
+  }
+
+  .apple-window-content {
+    padding: 32px 24px 28px;
+  }
+
+  .apple-window-chrome {
+    padding: 12px 16px;
+  }
+
+  .apple-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .apple-stat-card:nth-child(2) {
+    border-right: none;
+  }
+
+  .apple-stat-card:nth-child(3),
+  .apple-stat-card:nth-child(4) {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .apple-stat-card:nth-child(even) {
+    border-right: none;
+  }
+
+  .apple-stat-card:nth-child(odd) {
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .apple-stats-title {
+    font-size: 28px;
+  }
+
+  .apple-stat-number {
+    font-size: 32px;
+  }
+}

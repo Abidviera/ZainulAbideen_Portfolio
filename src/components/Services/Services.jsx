@@ -13,9 +13,9 @@ const services = [
         <path d="M8 21h8M12 17v4" />
       </svg>
     ),
-    title: 'Frontend Development',
-    desc: 'Building responsive, performant web applications using React, Next.js, and TypeScript with a focus on clean architecture and maintainability.',
-    tags: ['React', 'Next.js', 'TypeScript', 'Vite'],
+    title: 'Full Stack Development',
+    desc: 'Building scalable enterprise web applications end-to-end using Angular, React, ASP.NET Core, and NestJS with clean architecture.',
+    tags: ['Angular', 'React', 'ASP.NET Core', 'NestJS'],
     color: '#FF4F00',
     bg: 'rgba(255, 79, 0, 0.06)',
   },
@@ -25,9 +25,9 @@ const services = [
         <path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" />
       </svg>
     ),
-    title: 'UI/UX Design',
-    desc: 'Crafting intuitive interfaces and design systems in Figma — from wireframes to polished, production-ready design tokens and component libraries.',
-    tags: ['Figma', 'Design Systems', 'Prototyping', 'Tokens'],
+    title: 'Backend & API Development',
+    desc: 'Designing and developing robust REST APIs and backend services with ASP.NET Core, C#, middleware, and service-oriented architecture.',
+    tags: ['ASP.NET Core', 'C#', 'Web API', 'MVC'],
     color: '#6366f1',
     bg: 'rgba(99, 102, 241, 0.08)',
   },
@@ -37,9 +37,9 @@ const services = [
         <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
       </svg>
     ),
-    title: 'Performance & SEO',
-    desc: 'Optimizing Core Web Vitals, reducing bundle sizes, and implementing SEO best practices to ensure your site ranks and loads fast.',
-    tags: ['Lighthouse', 'SEO', 'Core Web Vitals', 'Bundle'],
+    title: 'Cloud & DevOps',
+    desc: 'Deploying and managing applications on Azure Cloud with automated CI/CD pipelines, Azure DevOps, and infrastructure management.',
+    tags: ['Azure', 'Azure DevOps', 'CI/CD', 'Deployment'],
     color: '#10b981',
     bg: 'rgba(16, 185, 129, 0.08)',
   },
@@ -51,24 +51,39 @@ const services = [
         <line x1="12" y1="22.08" x2="12" y2="12" />
       </svg>
     ),
-    title: 'Animation & Motion',
-    desc: 'Bringing interfaces to life with scroll-driven animations, micro-interactions, and 3D effects using GSAP, Framer Motion, and Three.js.',
-    tags: ['GSAP', 'Framer Motion', 'Three.js', 'Lottie'],
+    title: 'Mobile Development',
+    desc: 'Building cross-platform iOS and Android applications with .NET MAUI, delivering native performance with shared codebase.',
+    tags: ['.NET MAUI', 'C#', 'Cross-Platform', 'Mobile'],
     color: '#f59e0b',
     bg: 'rgba(245, 158, 11, 0.08)',
   },
   {
     icon: (
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="3" />
-        <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M4.93 19.07l1.41-1.41M19.07 19.07l-1.41-1.41M2 12h2M20 12h2M12 2v2M12 20v2" />
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
       </svg>
     ),
-    title: 'Landing Pages',
-    desc: 'Designing and developing high-converting landing pages that communicate value instantly and drive measurable results.',
-    tags: ['Landing Pages', 'CRO', 'A/B Testing'],
+    title: 'Database & Architecture',
+    desc: 'Designing and optimizing SQL Server and MongoDB databases, implementing Entity Framework ORM, and architecting scalable microservices.',
+    tags: ['SQL Server', 'MongoDB', 'EF Core', 'Microservices'],
     color: '#8b5cf6',
     bg: 'rgba(139, 92, 246, 0.08)',
+  },
+  {
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
+      </svg>
+    ),
+    title: 'Team Leadership',
+    desc: 'Leading development teams with Agile/Scrum, conducting sprint planning, PR reviews, mentoring, and enforcing code quality standards.',
+    tags: ['Agile', 'Sprint Planning', 'Code Review', 'Mentoring'],
+    color: '#ec4899',
+    bg: 'rgba(236, 72, 153, 0.08)',
   },
 ];
 
@@ -133,11 +148,11 @@ export default function Services() {
               </svg>
               Services
             </div>
-            <h2 className="section-title">What I Build &amp;<br />Design</h2>
+            <h2 className="section-title">What I Build &amp;<br />Deliver</h2>
           </div>
           <p className="section-desc">
-            End-to-end digital solutions — from concept and design through to a
-            fully-optimized, production-ready product.
+            End-to-end enterprise solutions — from system architecture and backend
+            development through to frontend, mobile, and cloud deployment.
           </p>
         </div>
 

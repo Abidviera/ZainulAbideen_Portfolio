@@ -6,16 +6,16 @@ import './About.css';
 gsap.registerPlugin(ScrollTrigger);
 
 const skills = [
-  { name: 'React / Next.js', pct: 92 },
-  { name: 'TypeScript', pct: 88 },
-  { name: 'UI/UX Design', pct: 85 },
-  { name: 'Performance Optimization', pct: 80 },
+  { name: 'ASP.NET Core / C#', pct: 92 },
+  { name: 'Angular / React', pct: 90 },
+  { name: 'NestJS / Node.js', pct: 85 },
+  { name: 'Azure Cloud / DevOps', pct: 80 },
 ];
 
 const tools = [
-  'Figma', 'VS Code', 'Vercel', 'Git',
-  'Framer', 'Three.js', 'Tailwind', 'GSAP',
-  'Node.js', 'Docker', 'Storybook', 'Playwright',
+  'Angular', 'React', 'TypeScript', 'ASP.NET Core',
+  'NestJS', 'SQL Server', 'MongoDB', 'Azure',
+  'Azure DevOps', '.NET MAUI', 'Entity Framework', 'Figma',
 ];
 
 export default function About() {
@@ -78,11 +78,11 @@ export default function About() {
               </svg>
               About Me
             </div>
-            <h2 className="section-title">Crafting Digital<br />Experiences</h2>
+            <h2 className="section-title">Building Scalable<br />Enterprise Solutions</h2>
           </div>
           <p className="section-desc">
-            Passionate about building interfaces that are as beautiful as they are
-            functional — with an obsession for detail and performance.
+            Results-driven Full Stack Developer and Team Lead with expertise in
+            ASP.NET Core, Angular, React, NestJS, and Azure Cloud.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export default function About() {
             </div>
             <div style={{ marginTop: 'auto' }}>
               <div className="label-chip" style={{ fontSize: 10 }}>
-                Based in Karachi, PK
+                Based in Thrissur, Kerala
               </div>
             </div>
           </div>
@@ -136,17 +136,15 @@ export default function About() {
           <div className="bento-card reveal about-text-block">
             <h3>Hello, I'm Zainul</h3>
             <p>
-              A frontend developer and designer with over five years of experience
-              building web applications for startups and enterprise clients alike. I
-              specialize in React ecosystems, performance optimization, and design
-              systems that scale. My approach blends technical precision with a
-              strong aesthetic sensibility — because great software should also feel
-              great to use.
+              A Full Stack Developer and Team Lead with expertise in designing,
+              developing, and deploying scalable enterprise web and mobile applications.
+              I specialize in ASP.NET Core, Angular, React, NestJS, and Azure Cloud,
+              with strong skills in system architecture design and CI/CD pipelines.
             </p>
             <p style={{ marginTop: 16 }}>
-              When I'm not coding, you'll find me exploring motion design
-              techniques, contributing to open-source, or sketching UI concepts for
-              side projects.
+              Currently leading end-to-end project delivery at AISERWIN, managing
+              teams, and architecting enterprise solutions on Azure. Adept in Agile
+              methodologies, code review, and mentoring junior developers.
             </p>
           </div>
 
