@@ -174,7 +174,7 @@ export default function ScrollHero() {
           {/* Stats */}
           <div className="scroll-hero-stats">
             <div className="scroll-stat">
-              <span className="scroll-stat-num">5+</span>
+              <span className="scroll-stat-num">3+</span>
               <span className="scroll-stat-label">Years Exp.</span>
             </div>
             <div className="scroll-stat-divider" />

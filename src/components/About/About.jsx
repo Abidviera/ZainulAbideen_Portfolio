@@ -126,7 +126,7 @@ export default function About() {
           {/* Experience years */}
           <div className="bento-card reveal">
             <div className="exp-year-display">
-              <span className="exp-year-num">5+</span>
+              <span className="exp-year-num">3+</span>
               <span className="exp-year-unit">Years</span>
               <span className="exp-year-sub">in Development</span>
             </div>

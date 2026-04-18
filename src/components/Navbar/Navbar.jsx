@@ -14,7 +14,9 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState('');
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 40);
+    const getScrollHeroHeight = () => window.innerHeight * 5;
+    const handleScroll = () => setScrolled(window.scrollY > getScrollHeroHeight());
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
