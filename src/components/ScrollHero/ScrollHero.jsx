@@ -3,8 +3,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './ScrollHero.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const TOTAL_FRAMES = 200;
 
 export default function ScrollHero() {
@@ -86,13 +84,25 @@ export default function ScrollHero() {
     if (!container) return;
 
     imgRef.current.src = imagesRef.current[0].src;
-    window.addEventListener('scroll', onScroll, { passive: true });
-    updateFrame();
 
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    // Use Lenis scroll event instead of native window scroll
+    const lenis = window.__LENIS__;
+    if (lenis) {
+      lenis.on('scroll', onScroll);
+      updateFrame();
+      return () => {
+        lenis.off('scroll', onScroll);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
+    } else {
+      // Fallback to native scroll for non-Lenis environments
+      window.addEventListener('scroll', onScroll, { passive: true });
+      updateFrame();
+      return () => {
+        window.removeEventListener('scroll', onScroll);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      };
+    }
   }, [ready, onScroll, updateFrame]);
 
   // Cinematic text reveal animation

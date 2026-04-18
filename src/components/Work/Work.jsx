@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState, useCallback, useMemo, forwardRef } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Work.css';
-
-gsap.registerPlugin(ScrollTrigger);
 
 // ── SVG Decorations ──────────────────────────────────────────
 const PushPin = ({ color = '#FF4F00', style }) => (
@@ -361,10 +359,14 @@ export default function Work() {
   const sectionRef = useRef(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const modalRef = useRef(null);
+  const modalCardRef = useRef(null);
+  const closeButtonRef = useRef(null);
   const polaroidRefs = useRef([]);
   const magazineRefs = useRef([]);
+  const previouslyFocused = useRef(null);
 
   const openModal = useCallback((project) => {
+    previouslyFocused.current = document.activeElement;
     setSelectedProject(project);
     document.body.style.overflow = 'hidden';
     gsap.fromTo(modalRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power2.out' });
@@ -373,6 +375,9 @@ export default function Work() {
       { opacity: 0, y: 40, scale: 0.95 },
       { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'power3.out', delay: 0.05 }
     );
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus();
+    });
   }, []);
 
   const closeModal = useCallback(() => {
@@ -383,15 +388,43 @@ export default function Work() {
       onComplete: () => {
         setSelectedProject(null);
         document.body.style.overflow = '';
+        previouslyFocused.current?.focus();
       },
     });
   }, []);
 
   useEffect(() => {
-    const handleKey = (e) => { if (e.key === 'Escape') closeModal(); };
+    if (!selectedProject) return;
+
+    const handleKey = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        return;
+      }
+      if (e.key === 'Tab') {
+        const focusable = modalCardRef.current?.querySelectorAll(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable || focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [closeModal]);
+  }, [selectedProject, closeModal]);
 
   // ── Scroll-triggered animations ──
   useEffect(() => {
@@ -570,10 +603,22 @@ export default function Work() {
         <div
           ref={modalRef}
           className="modal-backdrop"
+          role="presentation"
           onClick={(e) => e.target === e.currentTarget && closeModal()}
         >
-          <div className="modal-card">
-            <button className="modal-close" onClick={closeModal} aria-label="Close">
+          <div
+            ref={modalCardRef}
+            className="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+          >
+            <button
+              ref={closeButtonRef}
+              className="modal-close"
+              onClick={closeModal}
+              aria-label="Close project details"
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
@@ -587,7 +632,7 @@ export default function Work() {
             </div>
 
             <div className="modal-content">
-              <h2 className="modal-title">{selectedProject.title}</h2>
+              <h2 id="modal-title" className="modal-title">{selectedProject.title}</h2>
               <p className="modal-desc">{selectedProject.description}</p>
 
               <div className="modal-tech-section">

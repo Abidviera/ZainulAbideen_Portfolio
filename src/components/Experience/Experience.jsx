@@ -3,28 +3,26 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Experience.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const timelineData = [
   {
     role: 'Team Lead — Full Stack Development',
     company: 'AISERWIN — UAE (Remote)',
-    date: '2023 — Present',
+    date: 'Feb 2026 — Present',
     desc: 'Leading end-to-end project delivery, architecting enterprise solutions on Azure Cloud, managing cross-functional teams, and driving Agile sprints. Spearheaded development of CAAD ERP and multiple enterprise platforms.',
     color: 'default',
   },
   {
-    role: 'Senior Software Engineer',
-    company: 'Tech Innovators Inc.',
-    date: '2021 — 2023',
-    desc: 'Designed and developed scalable web applications using ASP.NET Core, Angular, and React. Led backend architecture for e-commerce platforms serving 10K+ daily active users.',
+    role: 'Software Developer — Full Stack',
+    company: 'Nazer Nazer Digital Media Co — Abu Dhabi, UAE',
+    date: 'Sep 2024 — Jan 2026',
+    desc: 'Full Stack Developer for CAAD, a live ERP solution built using NestJS, Angular 18, and MongoDB. Developed and maintained both frontend and backend modules, built REST APIs using ASP.NET Core, and implemented real-time data processing.',
     color: 'alt',
   },
   {
-    role: 'Software Developer',
-    company: 'Digital Solutions Pvt. Ltd.',
-    date: '2019 — 2021',
-    desc: 'Built RESTful APIs and backend services with ASP.NET Core. Collaborated on enterprise CRM and ERP modules, contributing to a 40% reduction in system downtime through optimized database queries.',
+    role: 'ASP.NET Core Developer',
+    company: 'Aitrich Technologies — Thrissur, Kerala',
+    date: 'Sep 2023 — Sep 2024',
+    desc: 'Designed responsive front-end components using Angular, TypeScript, and Bootstrap. Developed scalable backend services with ASP.NET Core, Razor Pages, Blazor, and Web API. Deployed applications on Azure Cloud with automated CI/CD pipelines.',
     color: 'teal',
   },
 ];

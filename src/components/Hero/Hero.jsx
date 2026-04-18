@@ -3,8 +3,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Hero.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
 function useMagneticStrength(strength = 0.4) {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);

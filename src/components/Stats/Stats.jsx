@@ -3,10 +3,8 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Stats.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const stats = [
-  { target: 5, suffix: '+', label: 'Years Experience', desc: 'In full-stack development & team leadership' },
+  { target: 3, suffix: '+', label: 'Years Experience', desc: 'In full-stack development & team leadership' },
   { target: 13, suffix: '+', label: 'Projects Delivered', desc: 'Enterprise solutions across multiple domains' },
   { target: 3, suffix: '', label: 'Companies Served', desc: 'From startups to enterprise organizations' },
   { target: 50, suffix: 'K+', label: 'Users Served', desc: 'Daily active users on deployed applications' },

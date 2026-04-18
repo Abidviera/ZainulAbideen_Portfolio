@@ -3,8 +3,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './About.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const skills = [
   { name: 'ASP.NET Core / C#', pct: 92 },
   { name: 'Angular / React', pct: 90 },

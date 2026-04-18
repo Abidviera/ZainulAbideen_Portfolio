@@ -3,8 +3,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Services.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
 const services = [
   {
     icon: (
