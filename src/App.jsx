@@ -18,6 +18,7 @@ import Testimonials from './components/Testimonials/Testimonials';
 import Awards from './components/Awards/Awards';
 import Contact from './components/Contact/Contact';
 import FooterHero from './components/FooterHero/FooterHero';
+import Chatbot from './components/Chatbot/Chatbot';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -78,6 +79,7 @@ function App() {
       <Testimonials />
       <Awards />
       <FooterHero />
+      <Chatbot />
       <footer className="footer">
         <div className="footer-watermark" aria-hidden="true">
           Zainul<br />Abideen EH
