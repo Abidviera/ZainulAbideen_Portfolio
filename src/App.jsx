@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -20,56 +21,24 @@ import Contact from './components/Contact/Contact';
 import FooterHero from './components/FooterHero/FooterHero';
 import FloatingActions from './components/FloatingActions/FloatingActions';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import ProjectDetail from './components/Work/ProjectDetail';
 
 gsap.registerPlugin(ScrollTrigger);
 
-function App() {
-  const lenisRef = useRef(null);
-
+// Scroll restoration on route change
+function ScrollRestore() {
+  const { pathname } = useLocation();
   useEffect(() => {
-    // Initialize Lenis with premium settings for ultra-smooth scrolling
-    const lenis = new Lenis({
-      lerp: 0.08,
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
-      infinite: false,
-    });
-    lenisRef.current = lenis;
-    window.__LENIS__ = lenis;
+    window.scrollTo(0, 0);
+    window.__LENIS__?.scrollTo(0, { duration: 0 });
+  }, [pathname]);
+  return null;
+}
 
-    // Connect Lenis to GSAP ScrollTrigger for seamless animation sync
-    lenis.on('scroll', ScrollTrigger.update);
-
-    // Premium RAF loop — Lenis expects seconds (not milliseconds)
-    let rafId;
-    const rafFn = (time) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(rafFn);
-    };
-    rafId = requestAnimationFrame(rafFn);
-
-    // Eliminate GSAP ticker lag smoothing for maximum responsiveness
-    gsap.ticker.lagSmoothing(0);
-
-    // Add lenis class to html for CSS targeting
-    document.documentElement.classList.add('lenis');
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      lenis.destroy();
-      lenisRef.current = null;
-      window.__LENIS__ = null;
-      document.documentElement.classList.remove('lenis');
-    };
-  }, []);
-
+// Home page — includes ScrollHero
+function HomePage() {
   return (
-    <ErrorBoundary>
-    <div className="app">
-      <div className="noise-overlay" />
-      <CustomCursor />
-      <Navbar />
+    <>
       <ScrollHero />
       <Hero />
       <Marquee />
@@ -122,7 +91,59 @@ function App() {
           <span className="footer-rights">All rights reserved.</span>
         </div>
       </footer>
-    </div>
+    </>
+  );
+}
+
+function App() {
+  const lenisRef = useRef(null);
+
+  useEffect(() => {
+    const lenis = new Lenis({
+      lerp: 0.08,
+      smoothWheel: true,
+      wheelMultiplier: 1,
+      touchMultiplier: 2,
+      infinite: false,
+    });
+    lenisRef.current = lenis;
+    window.__LENIS__ = lenis;
+
+    lenis.on('scroll', ScrollTrigger.update);
+
+    let rafId;
+    const rafFn = (time) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(rafFn);
+    };
+    rafId = requestAnimationFrame(rafFn);
+
+    gsap.ticker.lagSmoothing(0);
+    document.documentElement.classList.add('lenis');
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+      lenisRef.current = null;
+      window.__LENIS__ = null;
+      document.documentElement.classList.remove('lenis');
+    };
+  }, []);
+
+  return (
+    <ErrorBoundary>
+      <BrowserRouter>
+        <ScrollRestore />
+        <div className="app">
+          <div className="noise-overlay" />
+          <CustomCursor />
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/project/:slug" element={<ProjectDetail />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }
