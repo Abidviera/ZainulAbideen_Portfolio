@@ -57,8 +57,7 @@ const contactInfo = [
   },
 ];
 
-const FORM_SERVICE_ID = 'YOUR_FORM_SERVICE_ID';
-const FORM_TEMPLATE_ID = 'YOUR_FORM_TEMPLATE_ID';
+const FORM_SERVICE_ID = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || '';
 
 export default function Contact() {
   const sectionRef = useRef(null);

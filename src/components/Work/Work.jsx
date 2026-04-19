@@ -118,7 +118,7 @@ const PolaroidCard = ({ project, index, onOpen, cardRef }) => {
         style={{ transform: `rotate(${rot}deg)` }}
       >
         <div className="polaroid-img-wrap">
-          <img src={project.img} alt={project.title} className="polaroid-img" loading="lazy" />
+          <img src={project.img} alt={project.title} className="polaroid-img" loading="lazy" onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }} />
           <div className="polaroid-overlay">
             <button className="polaroid-view-btn">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -182,7 +182,7 @@ const MagazineCard = ({ project, onOpen }) => {
       onKeyDown={(e) => e.key === 'Enter' && onOpen(project)}
     >
       <div className="magazine-img-wrap">
-        <img src={project.img} alt={project.title} className="magazine-img" loading="lazy" />
+        <img src={project.img} alt={project.title} className="magazine-img" loading="lazy" onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }} />
         <div className="magazine-img-overlay" />
         <div className="magazine-category-tag" style={{ '--mc': project.color }}>
           {project.category}
@@ -222,6 +222,8 @@ const MagazineCard = ({ project, onOpen }) => {
 };
 
 // ── Main Component ────────────────────────────────────────────
+const FALLBACK_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"%3E%3Crect fill="%23f5f5f7" width="800" height="600"/%3E%3Ctext x="400" y="310" text-anchor="middle" fill="%238e8e93" font-family="system-ui" font-size="16"%3EImage unavailable%3C/text%3E%3C/svg%3E';
+
 const projects = [
   {
     id: 1,
@@ -625,7 +627,7 @@ export default function Work() {
             </button>
 
             <div className="modal-img-wrap">
-              <img src={selectedProject.img} alt={selectedProject.title} className="modal-img" />
+              <img src={selectedProject.img} alt={selectedProject.title} className="modal-img" onError={(e) => { e.currentTarget.src = FALLBACK_IMG; }} />
               <div className="modal-category-chip" style={{ '--card-color': selectedProject.color }}>
                 {selectedProject.category}
               </div>

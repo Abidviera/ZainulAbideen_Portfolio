@@ -274,7 +274,7 @@ export default function ScrollHero() {
   return (
     <div ref={containerRef} className="scroll-hero-container">
       <div ref={stickyRef} className="scroll-hero-sticky">
-        <img ref={imgRef} className="scroll-hero-img" alt="" />
+        <img ref={imgRef} className="scroll-hero-img" alt="" aria-hidden="true" />
 
         <div className="scroll-hero-gradient" />
 

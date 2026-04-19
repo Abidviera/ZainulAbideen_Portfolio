@@ -1,0 +1,28 @@
+{
+  "name": "Zainul Abideen EH — Portfolio",
+  "short_name": "Zainul EH",
+  "description": "Full Stack Developer & Team Lead — Portfolio showcasing enterprise solutions with ASP.NET Core, Angular, React, NestJS, and Azure Cloud.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007AFF",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/abid.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["portfolio", "developer", "technology"],
+  "lang": "en",
+  "scope": "/",
+  "prefer_related_applications": false
+}

@@ -149,7 +149,7 @@ export default function FooterHero() {
   return (
     <section ref={sectionRef} className="footer-hero-section">
       <div ref={stickyRef} className="footer-hero-sticky">
-        <img ref={imgRef} className="footer-hero-img" alt="" />
+        <img ref={imgRef} className="footer-hero-img" alt="" aria-hidden="true" />
 
         <div className="fh-gradient-top" />
         <div className="fh-gradient-bottom" />

@@ -14,11 +14,12 @@ import Stats from './components/Stats/Stats';
 import Services from './components/Services/Services';
 import Experience from './components/Experience/Experience';
 import Work from './components/Work/Work';
-import Testimonials from './components/Testimonials/Testimonials';
+import Expertise from './components/Expertise/Expertise';
 import Awards from './components/Awards/Awards';
 import Contact from './components/Contact/Contact';
 import FooterHero from './components/FooterHero/FooterHero';
-import Chatbot from './components/Chatbot/Chatbot';
+import FloatingActions from './components/FloatingActions/FloatingActions';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,6 +65,7 @@ function App() {
   }, []);
 
   return (
+    <ErrorBoundary>
     <div className="app">
       <div className="noise-overlay" />
       <CustomCursor />
@@ -76,10 +78,10 @@ function App() {
       <Services />
       <Experience />
       <Work />
-      <Testimonials />
+      <Expertise />
       <Awards />
       <FooterHero />
-      <Chatbot />
+      <FloatingActions />
       <footer className="footer">
         <div className="footer-watermark" aria-hidden="true">
           Zainul<br />Abideen EH
@@ -121,6 +123,7 @@ function App() {
         </div>
       </footer>
     </div>
+    </ErrorBoundary>
   );
 }
 

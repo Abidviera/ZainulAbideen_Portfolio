@@ -3,7 +3,7 @@ import "./Navbar.css";
 
 const navLinks = [
   { label: "About", href: "#about" },
-  { label: "Services", href: "#services" },
+  { label: "Expertise", href: "#expertise" },
   { label: "Work", href: "#work" },
   { label: "Contact", href: "#contact" },
 ];
@@ -79,7 +79,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    const sectionIds = ["about", "services", "work", "contact"];
+    const sectionIds = ["about", "expertise", "work", "contact"];
     const observers = sectionIds.map((id) => {
       const el = document.getElementById(id);
       if (!el) return null;

@@ -1,16 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import './CustomCursor.css';
 
+const INTERACTIVE_SELECTOR =
+  'a, button, [role="button"], .work-card-item, .service-card, .bento-card, .expertise-card, .award-card, .stat-card';
+
 export default function CustomCursor() {
   const dotRef = useRef(null);
   const ringRef = useRef(null);
   const posRef = useRef({ x: 0, y: 0 });
   const ringPosRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef(null);
-  const [hovering, setHovering] = useState(false);
-  const [clicking, setClicking] = useState(false);
+  const listenersTrackedRef = useRef(new Set());
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const dot = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;
@@ -22,19 +25,35 @@ export default function CustomCursor() {
     };
 
     const onMouseDown = () => {
-      setClicking(true);
       dot.classList.add('clicking');
       ring.classList.add('clicking');
     };
 
     const onMouseUp = () => {
-      setClicking(false);
       dot.classList.remove('clicking');
       ring.classList.remove('clicking');
     };
 
-    const lerp = (a, b, t) => a + (b - a) * t;
+    const onMouseOver = (e) => {
+      const target = e.target.closest(INTERACTIVE_SELECTOR);
+      if (target) {
+        ring.classList.add('hovering');
+      } else {
+        ring.classList.remove('hovering');
+      }
+    };
 
+    const addListeners = () => {
+      const interactives = document.querySelectorAll(INTERACTIVE_SELECTOR);
+      interactives.forEach((el) => {
+        if (listenersTrackedRef.current.has(el)) return;
+        el.addEventListener('mouseenter', () => ring.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hovering'));
+        listenersTrackedRef.current.add(el);
+      });
+    };
+
+    const lerp = (a, b, t) => a + (b - a) * t;
     const animate = () => {
       ringPosRef.current.x = lerp(ringPosRef.current.x, posRef.current.x, 0.12);
       ringPosRef.current.y = lerp(ringPosRef.current.y, posRef.current.y, 0.12);
@@ -44,51 +63,26 @@ export default function CustomCursor() {
     };
 
     rafRef.current = requestAnimationFrame(animate);
+    addListeners();
 
-    const onMouseEnterLink = () => setHovering(true);
-    const onMouseLeaveLink = () => setHovering(false);
-
-    const addHoverListeners = () => {
-      const interactives = document.querySelectorAll(
-        'a, button, [role="button"], .work-card-item, .service-card, .bento-card, .testimonial-card, .award-card, .stat-card'
-      );
-      interactives.forEach((el) => {
-        el.addEventListener('mouseenter', onMouseEnterLink);
-        el.addEventListener('mouseleave', onMouseLeaveLink);
-      });
-    };
-
-    addHoverListeners();
-
-    const observer = new MutationObserver(addHoverListeners);
+    const observer = new MutationObserver(() => {
+      addListeners();
+    });
     observer.observe(document.body, { childList: true, subtree: true });
 
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
-
-    const handleHover = (e) => {
-      const target = e.target.closest(
-        'a, button, [role="button"], .work-card-item, .service-card, .bento-card, .testimonial-card, .award-card, .stat-card'
-      );
-      if (target) {
-        setHovering(true);
-        ring.classList.add('hovering');
-      } else {
-        setHovering(false);
-        ring.classList.remove('hovering');
-      }
-    };
-
-    window.addEventListener('mouseover', handleHover);
+    window.addEventListener('mouseover', onMouseOver);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
-      window.removeEventListener('mouseover', handleHover);
+      window.removeEventListener('mouseover', onMouseOver);
       observer.disconnect();
+      listenersTrackedRef.current.clear();
     };
   }, []);
 
