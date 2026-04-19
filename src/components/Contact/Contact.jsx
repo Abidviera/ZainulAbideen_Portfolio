@@ -117,24 +117,160 @@ export default function Contact() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const reveals = sectionRef.current?.querySelectorAll('.reveal');
-      reveals?.forEach((el, i) => {
+      // Main card — clip-path bottom reveal
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.contact-card-main'),
+        { clipPath: 'inset(100% 0 0 0)', opacity: 0 },
+        {
+          clipPath: 'inset(0% 0 0 0)',
+          opacity: 1,
+          duration: 1.1,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
+
+      // Heading — scale + fade
+      const heading = sectionRef.current?.querySelector('.contact-card-main h2');
+      if (heading) {
         gsap.fromTo(
-          el,
-          { opacity: 0, y: 20 },
+          heading,
+          { opacity: 0, y: 24 },
           {
             opacity: 1,
             y: 0,
             duration: 0.9,
             ease: 'power3.out',
-            delay: i * 0.07,
             scrollTrigger: {
-              trigger: el,
+              trigger: sectionRef.current?.querySelector('.contact-card-main'),
+              start: 'top 78%',
+              toggleActions: 'play none none none',
+            },
+            delay: 0.3,
+          }
+        );
+      }
+
+      // Description paragraph
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.contact-card-main > div > p'),
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current?.querySelector('.contact-card-main'),
+            start: 'top 78%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.45,
+        }
+      );
+
+      // Form fields — staggered clip-path reveals
+      const formGroups = sectionRef.current?.querySelectorAll('.form-group');
+      formGroups?.forEach((group, i) => {
+        gsap.fromTo(
+          group,
+          { opacity: 0, y: 20, clipPath: 'inset(0 0 100% 0)' },
+          {
+            opacity: 1,
+            y: 0,
+            clipPath: 'inset(0 0 0% 0)',
+            duration: 0.7,
+            ease: 'power4.out',
+            scrollTrigger: {
+              trigger: group,
+              start: 'top 90%',
+              toggleActions: 'play none none none',
+            },
+            delay: i * 0.1,
+          }
+        );
+      });
+
+      // Submit button — fade up
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.contact-cta-btn[type="submit"]'),
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'back.out(2)',
+          scrollTrigger: {
+            trigger: sectionRef.current?.querySelector('.form-actions'),
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.4,
+        }
+      );
+
+      // Social buttons — stagger
+      const socialBtns = sectionRef.current?.querySelectorAll('.social-icon-btn');
+      socialBtns?.forEach((btn, i) => {
+        gsap.fromTo(
+          btn,
+          { opacity: 0, scale: 0.5, y: 10 },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'back.out(2)',
+            scrollTrigger: {
+              trigger: btn,
+              start: 'top 90%',
+              toggleActions: 'play none none none',
+            },
+            delay: i * 0.1,
+          }
+        );
+      });
+
+      // Info items — staggered slide from right
+      const infoItems = sectionRef.current?.querySelectorAll('.contact-info-item');
+      infoItems?.forEach((item, i) => {
+        gsap.fromTo(
+          item,
+          { opacity: 0, x: 40, scale: 0.92 },
+          {
+            opacity: 1,
+            x: 0,
+            scale: 1,
+            duration: 0.85,
+            ease: 'power4.out',
+            scrollTrigger: {
+              trigger: item,
               start: 'top 88%',
               toggleActions: 'play none none none',
             },
+            delay: i * 0.12,
           }
         );
+      });
+
+      // Parallax background orbs
+      const orbs = sectionRef.current?.querySelectorAll('.contact-bg-orb');
+      orbs?.forEach((orb, i) => {
+        gsap.to(orb, {
+          y: i === 0 ? -60 : 40,
+          x: i === 1 ? 30 : -20,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2,
+          },
+        });
       });
     }, sectionRef);
 
@@ -143,6 +279,8 @@ export default function Contact() {
 
   return (
     <section ref={sectionRef} className="contact-section" id="contact">
+      <div className="contact-bg-orb" style={{ top: '10%', left: '5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(0,122,255,0.06) 0%, transparent 70%)', borderRadius: '50%', position: 'absolute', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="contact-bg-orb" style={{ bottom: '20%', right: '5%', width: 350, height: 350, background: 'radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%)', borderRadius: '50%', position: 'absolute', pointerEvents: 'none', zIndex: 0 }} />
       <div className="section-container">
         <div className="contact-grid">
           <div className="bento-card contact-card-main reveal">

@@ -2302,53 +2302,65 @@ img, video { display: block; max-width: 100%; }
   }
 }
 
-/* ── Reveal Animations ────────────────────────────────────────────── */
+/* ── Advanced Reveal Animations (GSAP-driven) ────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.8s var(--ease-out),
-              transform 0.8s var(--ease-out);
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+  transform: translateY(28px);
 }
 
 .reveal-scale {
   opacity: 0;
-  transform: scale(0.96);
-  transition: opacity 0.8s var(--ease-out),
-              transform 0.8s var(--ease-out);
-}
-
-.reveal-scale.visible {
-  opacity: 1;
-  transform: scale(1);
+  transform: scale(0.94);
 }
 
 .reveal-left {
   opacity: 0;
-  transform: translateX(-24px);
-  transition: opacity 0.8s var(--ease-out),
-              transform 0.8s var(--ease-out);
-}
-
-.reveal-left.visible {
-  opacity: 1;
-  transform: translateX(0);
+  transform: translateX(-32px);
 }
 
 .reveal-right {
   opacity: 0;
-  transform: translateX(24px);
-  transition: opacity 0.8s var(--ease-out),
-              transform 0.8s var(--ease-out);
+  transform: translateX(32px);
 }
 
-.reveal-right.visible {
-  opacity: 1;
-  transform: translateX(0);
+/* Clip-path reveal — element wipes in from bottom */
+.clip-reveal {
+  clip-path: inset(100% 0 0 0);
+}
+
+/* Line draw — horizontal rule wipes left to right */
+.line-draw {
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+/* Spin-in for badges/icons */
+.spin-in {
+  opacity: 0;
+  transform: rotate(-180deg) scale(0.5);
+}
+
+/* Wave stagger — children animate with cascading delays */
+.wave-stagger > * {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+/* Fade only */
+.fade-only {
+  opacity: 0;
+}
+
+/* ── Scroll Progress Bar ──────────────────────────────────────────── */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--teal) 100%);
+  transform-origin: left;
+  z-index: calc(var(--z-nav) + 1);
+  transform: scaleX(0);
 }
 
 /* ── Horizontal Divider ──────────────────────────────────────────── */

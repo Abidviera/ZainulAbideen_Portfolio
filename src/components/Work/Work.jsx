@@ -706,91 +706,151 @@ export default function Work() {
   // ── Scroll-triggered animations ──
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Section header
+      // Section header — clip-path + scale
       gsap.fromTo(
         ".fw-header-anim",
-        { opacity: 0, y: 40 },
+        { opacity: 0, y: 50, clipPath: "inset(0 0 100% 0)" },
         {
           opacity: 1,
           y: 0,
-          duration: 0.9,
-          ease: "power3.out",
-          scrollTrigger: { trigger: ".fw-header-anim", start: "top 85%" },
+          clipPath: "inset(0 0 0% 0)",
+          duration: 1.1,
+          ease: "power4.out",
+          scrollTrigger: { trigger: ".fw-header-anim", start: "top 82%" },
         },
       );
 
-      // Polaroid cards stagger
+      // Header counter blocks stagger
+      gsap.fromTo(
+        ".fw-counter-block",
+        { opacity: 0, y: 20, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.7,
+          ease: "back.out(1.5)",
+          stagger: 0.12,
+          scrollTrigger: { trigger: ".fw-header-right", start: "top 82%" },
+          delay: 0.4,
+        },
+      );
+
+      // Scrapbook background parallax
+      gsap.to(".fw-scrapbook-grid", {
+        y: -30,
+        ease: "none",
+        scrollTrigger: {
+          trigger: ".fw-scrapbook-grid",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 2,
+        },
+      });
+
+      // Polaroid cards stagger — enhanced with rotation
       polaroidRefs.current.forEach((card, i) => {
         if (!card) return;
         gsap.fromTo(
           card,
-          { opacity: 0, scale: 0.7, rotate: 0 },
+          { opacity: 0, scale: 0.6, rotate: 0, y: 60 },
           {
             opacity: 1,
             scale: 1,
-            duration: 0.7,
-            ease: "back.out(1.7)",
-            scrollTrigger: { trigger: card, start: "top 90%" },
-            delay: i * 0.08,
-          },
-        );
-      });
-
-      // Magazine cards
-      magazineRefs.current.forEach((card, i) => {
-        if (!card) return;
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 60, clipPath: "inset(100% 0 0 0)" },
-          {
-            opacity: 1,
             y: 0,
-            clipPath: "inset(0% 0 0 0)",
             duration: 0.8,
-            ease: "power3.out",
-            scrollTrigger: { trigger: card, start: "top 88%" },
+            ease: "back.out(1.8)",
+            scrollTrigger: { trigger: card, start: "top 90%" },
             delay: i * 0.1,
           },
         );
       });
 
-      // Post-it notes
+      // Magazine cards — enhanced with scale and depth
+      magazineRefs.current.forEach((card, i) => {
+        if (!card) return;
+        gsap.fromTo(
+          card,
+          { opacity: 0, y: 80, scale: 0.9, clipPath: "inset(100% 0 0 0)" },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            clipPath: "inset(0% 0 0 0)",
+            duration: 1,
+            ease: "power4.out",
+            scrollTrigger: { trigger: card, start: "top 88%" },
+            delay: i * 0.12,
+          },
+        );
+      });
+
+      // Post-it notes — spring bounce
       gsap.fromTo(
         ".postit-note",
-        { opacity: 0, scale: 0, rotate: -10 },
+        { opacity: 0, scale: 0, rotate: -15 },
         {
           opacity: 1,
           scale: 1,
           rotate: 0,
           duration: 0.5,
-          ease: "back.out(2)",
-          stagger: 0.05,
-          scrollTrigger: { trigger: ".postit-note", start: "top 90%" },
+          ease: "back.out(2.5)",
+          stagger: 0.08,
+          scrollTrigger: { trigger: ".postit-note", start: "top 92%" },
         },
       );
 
-      // Stamp marks
+      // Stamp marks — dramatic spin
       gsap.fromTo(
         ".stamp-mark",
-        { opacity: 0, scale: 2, rotate: 20 },
+        { opacity: 0, scale: 2.5, rotate: 25 },
         {
           opacity: 1,
           scale: 1,
           rotate: 0,
-          duration: 0.4,
+          duration: 0.5,
           ease: "back.out(3)",
-          stagger: 0.06,
+          stagger: 0.08,
           scrollTrigger: { trigger: ".stamp-mark", start: "top 90%" },
+        },
+      );
+
+      // Magazine header line — draw
+      gsap.fromTo(
+        ".fw-magazine-header-line",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1,
+          ease: "power3.inOut",
+          stagger: 0.15,
+          scrollTrigger: { trigger: ".fw-magazine-header", start: "top 85%" },
+          delay: 0.2,
+        },
+      );
+
+      // Magazine heading — fade + rise
+      gsap.fromTo(
+        ".fw-magazine-heading",
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: { trigger: ".fw-magazine-header", start: "top 85%" },
+          delay: 0.3,
         },
       );
 
       // Floating decorative elements
       gsap.fromTo(
         ".fw-deco",
-        { opacity: 0, scale: 0.5 },
+        { opacity: 0, scale: 0.5, rotate: -10 },
         {
           opacity: 1,
           scale: 1,
+          rotate: 0,
           duration: 0.6,
           stagger: 0.1,
           ease: "back.out(2)",

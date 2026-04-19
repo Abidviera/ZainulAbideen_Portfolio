@@ -37,6 +37,68 @@ function ScrollRestore() {
 
 // Home page — includes ScrollHero
 function HomePage({ greetingDone, setGreetingDone }) {
+  const footerRef = useRef(null);
+
+  useEffect(() => {
+    if (!footerRef.current) return;
+    const ctx = gsap.context(() => {
+      // Watermark — dramatic clip reveal
+      gsap.fromTo(
+        '.footer-watermark',
+        { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
+        {
+          clipPath: 'inset(0 0 0% 0)',
+          opacity: 1,
+          duration: 1.2,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: '.footer',
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
+
+      // Contact items — stagger fade in
+      gsap.fromTo(
+        '.footer-contact-item',
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          ease: 'power3.out',
+          stagger: 0.12,
+          scrollTrigger: {
+            trigger: '.footer-contact',
+            start: 'top 90%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.3,
+        }
+      );
+
+      // Bottom bar
+      gsap.fromTo(
+        '.footer-bottom',
+        { opacity: 0 },
+        {
+          opacity: 1,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '.footer-bottom',
+            start: 'top 92%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.5,
+        }
+      );
+    }, footerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
     <>
       <ScrollHero greetingDone={greetingDone} setGreetingDone={setGreetingDone} />
@@ -51,7 +113,7 @@ function HomePage({ greetingDone, setGreetingDone }) {
       <Awards />
       <FooterHero />
       {greetingDone && <FloatingActions />}
-      <footer className="footer">
+      <footer ref={footerRef} className="footer">
         <div className="footer-watermark" aria-hidden="true">
           Zainul<br />Abideen EH
         </div>
@@ -100,17 +162,25 @@ function App() {
   const [greetingDone, setGreetingDone] = useState(false);
 
   useEffect(() => {
+    // Scroll progress bar
+    const progressBar = document.createElement('div');
+    progressBar.className = 'scroll-progress-bar';
+    document.body.appendChild(progressBar);
+
     const lenis = new Lenis({
-      lerp: 0.08,
+      lerp: 0.05,
       smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 2,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.5,
       infinite: false,
     });
     lenisRef.current = lenis;
     window.__LENIS__ = lenis;
 
-    lenis.on('scroll', ScrollTrigger.update);
+    lenis.on('scroll', ({ progress }) => {
+      ScrollTrigger.update();
+      progressBar.style.transform = `scaleX(${progress})`;
+    });
 
     let rafId;
     const rafFn = (time) => {
@@ -128,6 +198,7 @@ function App() {
       lenisRef.current = null;
       window.__LENIS__ = null;
       document.documentElement.classList.remove('lenis');
+      progressBar.remove();
     };
   }, []);
 

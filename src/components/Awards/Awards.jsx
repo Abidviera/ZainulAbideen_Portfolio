@@ -117,45 +117,130 @@ export default function Awards() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const reveals = sectionRef.current?.querySelectorAll('.reveal');
-      reveals?.forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 24 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            delay: i * 0.07,
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 88%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      });
+      // Section header — clip-path wipe
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.section-header'),
+        { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+        {
+          clipPath: 'inset(0 0% 0 0)',
+          opacity: 1,
+          duration: 1.1,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
 
+      // Description fade
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.section-desc'),
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current?.querySelector('.section-desc'),
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.35,
+        }
+      );
+
+      // Award cards — flip/rotate reveal with stagger
       const cards = sectionRef.current?.querySelectorAll('.award-card');
       cards?.forEach((card, i) => {
+        const rotDir = i % 2 === 0 ? -3 : 3;
         gsap.fromTo(
           card,
-          { opacity: 0, y: 40, scale: 0.95 },
+          {
+            opacity: 0,
+            y: 60,
+            scale: 0.8,
+            rotateZ: rotDir,
+            clipPath: 'inset(100% 0 0 0)',
+          },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.8,
-            ease: 'power3.out',
+            rotateZ: 0,
+            clipPath: 'inset(0% 0 0 0)',
+            duration: 0.9,
+            ease: 'power4.out',
             scrollTrigger: {
               trigger: card,
               start: 'top 88%',
               toggleActions: 'play none none none',
             },
+            delay: i * 0.08,
+          }
+        );
+      });
+
+      // Award icons — spin in
+      const icons = sectionRef.current?.querySelectorAll('.award-icon-wrap');
+      icons?.forEach((icon, i) => {
+        gsap.fromTo(
+          icon,
+          { opacity: 0, scale: 0, rotate: -180 },
+          {
+            opacity: 1,
+            scale: 1,
+            rotate: 0,
+            duration: 0.6,
+            ease: 'back.out(2.5)',
+            scrollTrigger: {
+              trigger: icon,
+              start: 'top 90%',
+              toggleActions: 'play none none none',
+            },
             delay: i * 0.1,
           }
         );
+      });
+
+      // Award year badges — pop in
+      const years = sectionRef.current?.querySelectorAll('.award-year');
+      years?.forEach((year, i) => {
+        gsap.fromTo(
+          year,
+          { opacity: 0, scale: 0.5, x: 10 },
+          {
+            opacity: 1,
+            scale: 1,
+            x: 0,
+            duration: 0.5,
+            ease: 'back.out(3)',
+            scrollTrigger: {
+              trigger: year,
+              start: 'top 90%',
+              toggleActions: 'play none none none',
+            },
+            delay: i * 0.05 + 0.3,
+          }
+        );
+      });
+
+      // Parallax background orbs
+      const orbs = sectionRef.current?.querySelectorAll('.awards-bg-orb');
+      orbs?.forEach((orb, i) => {
+        gsap.to(orb, {
+          y: i === 0 ? -80 : 50,
+          x: i === 1 ? 30 : -30,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2,
+          },
+        });
       });
     }, sectionRef);
 
@@ -164,6 +249,8 @@ export default function Awards() {
 
   return (
     <section ref={sectionRef} className="awards-section" id="awards">
+      <div className="awards-bg-orb" style={{ top: '10%', right: '5%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(255,193,7,0.06) 0%, transparent 70%)', borderRadius: '50%', position: 'absolute', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="awards-bg-orb" style={{ bottom: '15%', left: '3%', width: 300, height: 300, background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)', borderRadius: '50%', position: 'absolute', pointerEvents: 'none', zIndex: 0 }} />
       <div className="section-container">
         <div className="section-header reveal">
           <div className="section-title-group">

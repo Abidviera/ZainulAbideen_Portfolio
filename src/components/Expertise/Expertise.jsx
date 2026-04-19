@@ -31,37 +31,54 @@ export default function Expertise() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const reveals = sectionRef.current?.querySelectorAll('.reveal');
-      reveals?.forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 24 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            delay: i * 0.08,
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 88%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      });
+      // Section header — clip-path wipe
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.section-header'),
+        { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
+        {
+          clipPath: 'inset(0 0 0% 0)',
+          opacity: 1,
+          duration: 1,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
 
+      // Description fade
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.section-desc'),
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current?.querySelector('.section-desc'),
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.35,
+        }
+      );
+
+      // Cards — scale + glow reveal
       const cards = sectionRef.current?.querySelectorAll('.expertise-card');
       cards?.forEach((card, i) => {
         gsap.fromTo(
           card,
-          { opacity: 0, y: 40, scale: 0.96 },
+          { opacity: 0, y: 50, scale: 0.85, rotateZ: -2 },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.8,
-            ease: 'power3.out',
+            rotateZ: 0,
+            duration: 0.9,
+            ease: 'back.out(1.2)',
             scrollTrigger: {
               trigger: card,
               start: 'top 88%',
@@ -71,6 +88,45 @@ export default function Expertise() {
           }
         );
       });
+
+      // Skill tags — wave stagger
+      const tags = sectionRef.current?.querySelectorAll('.expertise-skill-tag');
+      tags?.forEach((tag, i) => {
+        gsap.fromTo(
+          tag,
+          { opacity: 0, y: 8, scale: 0.7 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.45,
+            ease: 'back.out(2.5)',
+            scrollTrigger: {
+              trigger: tag,
+              start: 'top 92%',
+              toggleActions: 'play none none none',
+            },
+            delay: (i % 7) * 0.06,
+          }
+        );
+      });
+
+      // Background accent parallax
+      const bgAccent = sectionRef.current?.querySelector('.expertise-bg-accent');
+      if (bgAccent) {
+        gsap.to(bgAccent, {
+          y: -100,
+          x: 60,
+          scale: 1.2,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 3,
+          },
+        });
+      }
     }, sectionRef);
 
     return () => ctx.revert();

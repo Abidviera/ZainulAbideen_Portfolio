@@ -61,16 +61,15 @@ export default function Stats() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Window chrome entrance
+      // Window chrome — clip-path reveal from bottom
       gsap.fromTo(
         windowRef.current,
-        { opacity: 0, y: 16, scale: 0.98 },
+        { clipPath: 'inset(100% 0 0 0)', opacity: 0 },
         {
+          clipPath: 'inset(0% 0 0 0)',
           opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.9,
-          ease: 'power3.out',
+          duration: 1,
+          ease: 'power4.out',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top 80%',
@@ -79,10 +78,29 @@ export default function Stats() {
         }
       );
 
-      // Title
+      // Title — scale + fade
       gsap.fromTo(
         titleRef.current,
-        { opacity: 0, y: 20 },
+        { opacity: 0, y: 24, scale: 0.95 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.9,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 78%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.3,
+        }
+      );
+
+      // Subtitle — fade up
+      gsap.fromTo(
+        subtitleRef.current,
+        { opacity: 0, y: 16 },
         {
           opacity: 1,
           y: 0,
@@ -90,77 +108,60 @@ export default function Stats() {
           ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: 'top 80%',
+            start: 'top 78%',
             toggleActions: 'play none none none',
           },
-          delay: 0.15,
+          delay: 0.45,
         }
       );
 
-      // Subtitle
-      gsap.fromTo(
-        subtitleRef.current,
-        { opacity: 0, y: 16 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 80%',
-            toggleActions: 'play none none none',
-          },
-          delay: 0.25,
-        }
-      );
-
-      // Cards staggered entrance
+      // Cards — spring bounce entrance, staggered
       const cards = sectionRef.current?.querySelectorAll('.apple-stat-card');
       cards?.forEach((card, i) => {
         gsap.fromTo(
           card,
-          { opacity: 0, y: 28, scale: 0.96 },
+          { opacity: 0, y: 40, scale: 0.85, rotateZ: -2 },
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.75,
-            ease: 'power3.out',
+            rotateZ: 0,
+            duration: 0.9,
+            ease: 'back.out(1.4)',
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: 'top 75%',
+              start: 'top 72%',
               toggleActions: 'play none none none',
             },
-            delay: 0.3 + i * 0.1,
+            delay: 0.5 + i * 0.12,
           }
         );
       });
 
-      // Parallax on the window
+      // Parallax on the window — scroll-driven vertical shift
       gsap.to(windowRef.current, {
-        y: -18,
+        y: -22,
         ease: 'none',
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top bottom',
           end: 'bottom top',
-          scrub: 1.5,
+          scrub: 1.8,
         },
       });
 
-      // Subtle background orb movement
+      // Subtle background orb parallax
       const orbs = sectionRef.current?.querySelectorAll('.apple-bg-orb');
       orbs?.forEach((orb, i) => {
         gsap.to(orb, {
-          y: i === 0 ? -60 : 40,
-          x: i === 1 ? 30 : -20,
+          y: i === 0 ? -80 : 50,
+          x: i === 1 ? 40 : -30,
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: 2,
+            scrub: 2.5,
           },
         });
       });

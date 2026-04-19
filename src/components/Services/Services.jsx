@@ -90,37 +90,54 @@ export default function Services() {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const reveals = sectionRef.current?.querySelectorAll('.reveal');
-      reveals?.forEach((el, i) => {
-        gsap.fromTo(
-          el,
-          { opacity: 0, y: 20 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.9,
-            ease: 'power3.out',
-            delay: i * 0.05,
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 88%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      });
+      // Section header — clip-path wipe
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.section-header'),
+        { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+        {
+          clipPath: 'inset(0 0% 0 0)',
+          opacity: 1,
+          duration: 1.1,
+          ease: 'power4.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none none',
+          },
+        }
+      );
 
+      // Description fade up
+      gsap.fromTo(
+        sectionRef.current?.querySelector('.section-desc'),
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current?.querySelector('.section-desc'),
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
+          delay: 0.4,
+        }
+      );
+
+      // Service cards — clip-path bottom reveal + scale + rotate
       const cards = sectionRef.current?.querySelectorAll('.service-card');
       cards?.forEach((card, i) => {
         gsap.fromTo(
           card,
-          { opacity: 0, y: 20, scale: 0.96 },
+          { opacity: 0, y: 40, scale: 0.9, rotateZ: (i % 2 === 0 ? -1 : 1) },
           {
             opacity: 1,
             y: 0,
             scale: 1,
+            rotateZ: 0,
             duration: 0.9,
-            ease: 'power3.out',
+            ease: 'power4.out',
             scrollTrigger: {
               trigger: card,
               start: 'top 88%',
@@ -130,6 +147,44 @@ export default function Services() {
           }
         );
       });
+
+      // Service tags — wave stagger
+      const tags = sectionRef.current?.querySelectorAll('.service-tag');
+      tags?.forEach((tag, i) => {
+        gsap.fromTo(
+          tag,
+          { opacity: 0, scale: 0.7, y: 8 },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            duration: 0.4,
+            ease: 'back.out(2.5)',
+            scrollTrigger: {
+              trigger: tag,
+              start: 'top 92%',
+              toggleActions: 'play none none none',
+            },
+            delay: (i % 4) * 0.06,
+          }
+        );
+      });
+
+      // Parallax background orbs
+      const orbs = sectionRef.current?.querySelectorAll('.services-bg-orb');
+      orbs?.forEach((orb, i) => {
+        gsap.to(orb, {
+          y: i === 0 ? -60 : 40,
+          x: i === 1 ? 30 : -20,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 2,
+          },
+        });
+      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -137,6 +192,8 @@ export default function Services() {
 
   return (
     <section ref={sectionRef} className="services-section" id="services">
+      <div className="services-bg-orb" style={{ top: '10%', right: '5%', width: 500, height: 500, background: 'radial-gradient(circle, rgba(99,102,241,0.05) 0%, transparent 70%)', borderRadius: '50%', position: 'absolute', pointerEvents: 'none', zIndex: 0 }} />
+      <div className="services-bg-orb" style={{ bottom: '20%', left: '2%', width: 350, height: 350, background: 'radial-gradient(circle, rgba(236,72,153,0.04) 0%, transparent 70%)', borderRadius: '50%', position: 'absolute', pointerEvents: 'none', zIndex: 0 }} />
       <div className="section-container">
         <div className="section-header reveal">
           <div className="section-title-group">
