@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
@@ -19,9 +19,10 @@ import Expertise from './components/Expertise/Expertise';
 import Awards from './components/Awards/Awards';
 import Contact from './components/Contact/Contact';
 import FooterHero from './components/FooterHero/FooterHero';
-import FloatingActions from './components/FloatingActions/FloatingActions';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
-import ProjectDetail from './components/Work/ProjectDetail';
+
+const ProjectDetail = lazy(() => import('./components/Work/ProjectDetail'));
+const FloatingActions = lazy(() => import('./components/FloatingActions/FloatingActions'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -112,7 +113,11 @@ function HomePage({ greetingDone, setGreetingDone }) {
       <Expertise />
       <Awards />
       <FooterHero />
-      {greetingDone && <FloatingActions />}
+      {greetingDone && (
+        <Suspense fallback={null}>
+          <FloatingActions />
+        </Suspense>
+      )}
       <footer ref={footerRef} className="footer">
         <div className="footer-watermark" aria-hidden="true">
           Zainul<br />Abideen EH
@@ -212,7 +217,11 @@ function App() {
           {greetingDone && <Navbar />}
           <Routes>
             <Route path="/" element={<HomePage greetingDone={greetingDone} setGreetingDone={setGreetingDone} />} />
-            <Route path="/project/:slug" element={<ProjectDetail />} />
+            <Route path="/project/:slug" element={
+              <Suspense fallback={<div className="loading-screen" />}>
+                <ProjectDetail />
+              </Suspense>
+            } />
           </Routes>
         </div>
       </BrowserRouter>
