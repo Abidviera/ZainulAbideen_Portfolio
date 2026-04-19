@@ -531,10 +531,10 @@ img, video { display: block; max-width: 100%; }
 
 .navbar-logo {
   font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 700;
   color: var(--text-heading);
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -546,6 +546,27 @@ img, video { display: block; max-width: 100%; }
   background: var(--accent);
   border-radius: 50%;
   animation: pulse-dot 2s ease infinite;
+}
+
+.navbar:not(.scrolled) .navbar-logo {
+  color: white;
+}
+
+.navbar-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.navbar-logo-text {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: inherit;
 }
 
 @keyframes pulse-dot {
