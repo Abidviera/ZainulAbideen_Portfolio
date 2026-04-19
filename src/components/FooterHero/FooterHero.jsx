@@ -20,21 +20,22 @@ export default function FooterHero() {
   const rafRef = useRef(null);
   const isInViewRef = useRef(false);
 
-  // Preload
+  // Preload frames progressively — first batch immediately, rest in background
   useEffect(() => {
-    let loaded = 0;
     const imgs = [];
+    let loaded = 0;
+    let hasSetFirst = false;
 
-    for (let i = 1; i <= TOTAL_FRAMES; i++) {
+    const preloadFrame = (i) => {
       const num = String(i).padStart(3, '0');
       const img = new Image();
-      img.src = `/footerhero/ezgif-frame-${num}.png`;
-      imgs.push(img);
+      img.src = `/footerhero/webp/frame-${num}.webp`;
+      imgs[i - 1] = img;
 
       img.onload = () => {
-        // Show first frame immediately when loaded
-        if (i === 1 && imgRef.current) {
+        if (!hasSetFirst && imgRef.current) {
           imgRef.current.src = img.src;
+          hasSetFirst = true;
         }
         loaded++;
         setLoadProgress(loaded / TOTAL_FRAMES);
@@ -45,8 +46,30 @@ export default function FooterHero() {
         setLoadProgress(loaded / TOTAL_FRAMES);
         if (loaded >= TOTAL_FRAMES) setReady(true);
       };
+    };
+
+    // First 5 frames immediately
+    for (let i = 1; i <= 5; i++) {
+      preloadFrame(i);
     }
 
+    // Rest in batches of 20 with small delay
+    const BATCH_SIZE = 20;
+    const BATCH_DELAY = 50;
+    let batchIndex = 6;
+
+    const loadBatch = () => {
+      const end = Math.min(batchIndex + BATCH_SIZE - 1, TOTAL_FRAMES);
+      for (let i = batchIndex; i <= end; i++) {
+        preloadFrame(i);
+      }
+      batchIndex = end + 1;
+      if (batchIndex <= TOTAL_FRAMES) {
+        setTimeout(loadBatch, BATCH_DELAY);
+      }
+    };
+
+    setTimeout(loadBatch, BATCH_DELAY);
     imagesRef.current = imgs;
   }, []);
 
