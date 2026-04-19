@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import gsap from 'gsap';
@@ -36,10 +36,10 @@ function ScrollRestore() {
 }
 
 // Home page — includes ScrollHero
-function HomePage() {
+function HomePage({ greetingDone, setGreetingDone }) {
   return (
     <>
-      <ScrollHero />
+      <ScrollHero greetingDone={greetingDone} setGreetingDone={setGreetingDone} />
       <Hero />
       <Marquee />
       <About />
@@ -50,7 +50,7 @@ function HomePage() {
       <Expertise />
       <Awards />
       <FooterHero />
-      <FloatingActions />
+      {greetingDone && <FloatingActions />}
       <footer className="footer">
         <div className="footer-watermark" aria-hidden="true">
           Zainul<br />Abideen EH
@@ -97,6 +97,7 @@ function HomePage() {
 
 function App() {
   const lenisRef = useRef(null);
+  const [greetingDone, setGreetingDone] = useState(false);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -136,10 +137,10 @@ function App() {
         <ScrollRestore />
         <div className="app">
           <div className="noise-overlay" />
-          <CustomCursor />
-          <Navbar />
+          {greetingDone && <CustomCursor />}
+          {greetingDone && <Navbar />}
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage greetingDone={greetingDone} setGreetingDone={setGreetingDone} />} />
             <Route path="/project/:slug" element={<ProjectDetail />} />
           </Routes>
         </div>

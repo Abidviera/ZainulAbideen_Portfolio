@@ -38,40 +38,181 @@
   pointer-events: none;
 }
 
-/* ── Loading Overlay ────────────────────────────────────────── */
-.load-overlay {
+/* ── Greeting Overlay ─────────────────────────────────────── */
+.greet-overlay {
   position: absolute;
   inset: 0;
   z-index: 10;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  background: #1d1d1f;
+  overflow: hidden;
+  will-change: opacity, transform;
 }
 
-.load-bar-wrap {
-  width: 240px;
-  height: 2px;
-  background: rgba(0, 122, 255, 0.15);
-  border-radius: 2px;
+/* Dark cinematic background */
+.greet-bg {
+  position: absolute;
+  inset: 0;
+  background: #0c0c0e;
+  z-index: 0;
+}
+
+/* Ambient gradient orbs */
+.greet-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  z-index: 1;
+  will-change: transform, opacity;
+}
+
+.greet-orb--1 {
+  width: 600px;
+  height: 600px;
+  top: -200px;
+  left: -150px;
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.18) 0%, transparent 70%);
+}
+
+.greet-orb--2 {
+  width: 500px;
+  height: 500px;
+  bottom: -180px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(80, 180, 255, 0.12) 0%, transparent 70%);
+}
+
+/* Light rays from edges */
+.greet-ray {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 122, 255, 0.6) 30%,
+    rgba(255, 255, 255, 0.8) 50%,
+    rgba(0, 122, 255, 0.6) 70%,
+    transparent 100%
+  );
+  z-index: 2;
+  will-change: transform, opacity;
+}
+
+.greet-ray--1 {
+  left: 0;
+  width: 55%;
+  transform-origin: left center;
+}
+
+.greet-ray--2 {
+  right: 0;
+  width: 45%;
+  transform-origin: right center;
+}
+
+/* Floating particles */
+.greet-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px 2px rgba(0, 122, 255, 0.5);
+  z-index: 3;
+  will-change: transform, opacity;
+}
+
+/* Central content */
+.greet-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+/* Main greeting text */
+.greet-text {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 14vw, 160px);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  display: flex;
   overflow: hidden;
 }
 
-.load-bar {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 2px;
-  transition: width 0.1s ease;
+.greet-text .greet-char {
+  display: inline-block;
+  will-change: opacity, transform, filter, clip-path;
 }
 
-.load-text {
+/* Accent subtitle */
+.greet-accent {
+  display: flex;
+  align-items: baseline;
+  gap: 0;
+  margin-top: 2px;
+}
+
+.greet-accent .accent-word {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 3vw, 32px);
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  will-change: opacity, transform, filter;
+}
+
+.greet-accent .accent-name {
+  font-size: clamp(22px, 3.2vw, 36px);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.02em;
+  text-transform: none;
+}
+
+/* Time string */
+.greet-time {
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.28);
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  will-change: opacity, transform;
+}
+
+.greet-time-icon {
+  color: rgba(0, 122, 255, 0.4);
+}
+
+/* Bottom accent line */
+.greet-bottom-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 122, 255, 0.3) 30%,
+    rgba(0, 122, 255, 0.5) 50%,
+    rgba(0, 122, 255, 0.3) 70%,
+    transparent 100%
+  );
+  z-index: 4;
 }
 
 /* ── Text Overlay ────────────────────────────────────────────── */

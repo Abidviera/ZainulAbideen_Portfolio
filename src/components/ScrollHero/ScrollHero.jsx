@@ -3,9 +3,25 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './ScrollHero.css';
 
+function getTimeString() {
+  return new Date().toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
+function getDayPeriod() {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'Morning';
+  if (hour >= 12 && hour < 17) return 'Afternoon';
+  if (hour >= 17 && hour < 20) return 'Evening';
+  return 'Night';
+}
+
 const TOTAL_FRAMES = 200;
 
-export default function ScrollHero() {
+export default function ScrollHero({ greetingDone, setGreetingDone }) {
   const containerRef = useRef(null);
   const stickyRef = useRef(null);
   const imgRef = useRef(null);
@@ -20,8 +36,20 @@ export default function ScrollHero() {
   const statsRef = useRef(null);
   const scrollIndicatorRef = useRef(null);
 
-  const [loadProgress, setLoadProgress] = useState(0);
   const [ready, setReady] = useState(false);
+  const greetingRef = useRef(null);
+  const greetingCharsRef = useRef(null);
+  const greetingTimeRef = useRef(null);
+  const greetingAccentRef = useRef(null);
+  const greetingOrb1Ref = useRef(null);
+  const greetingOrb2Ref = useRef(null);
+  const greetingRay1Ref = useRef(null);
+  const greetingRay2Ref = useRef(null);
+  const greetingParticle1Ref = useRef(null);
+  const greetingParticle2Ref = useRef(null);
+  const greetingParticle3Ref = useRef(null);
+  const greetingParticle4Ref = useRef(null);
+  const greetingOverlayBgRef = useRef(null);
 
   const imagesRef = useRef([]);
   const rafRef = useRef(null);
@@ -42,18 +70,128 @@ export default function ScrollHero() {
           imgRef.current.src = img.src;
         }
         loaded++;
-        setLoadProgress(loaded / TOTAL_FRAMES);
         if (loaded >= TOTAL_FRAMES) setReady(true);
       };
       img.onerror = () => {
         loaded++;
-        setLoadProgress(loaded / TOTAL_FRAMES);
         if (loaded >= TOTAL_FRAMES) setReady(true);
       };
     }
 
     imagesRef.current = imgs;
   }, []);
+
+  // Greeting animation — fast cinematic intro
+  useEffect(() => {
+    if (greetingDone || !greetingRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline();
+      const bg = greetingOverlayBgRef.current;
+      const orb1 = greetingOrb1Ref.current;
+      const orb2 = greetingOrb2Ref.current;
+      const ray1 = greetingRay1Ref.current;
+      const ray2 = greetingRay2Ref.current;
+      const p1 = greetingParticle1Ref.current;
+      const p2 = greetingParticle2Ref.current;
+      const p3 = greetingParticle3Ref.current;
+      const p4 = greetingParticle4Ref.current;
+      const chars = greetingCharsRef.current?.querySelectorAll('.greet-char');
+      const accent = greetingAccentRef.current;
+      const timeEl = greetingTimeRef.current;
+
+      // Init — everything hidden
+      gsap.set([bg, greetingRef.current], { opacity: 0 });
+      gsap.set([orb1, orb2], { opacity: 0, scale: 0.5 });
+      gsap.set([ray1, ray2], { scaleX: 0, opacity: 0 });
+      gsap.set([p1, p2, p3, p4], { opacity: 0, scale: 0, y: 30 });
+      if (chars) gsap.set(chars, { opacity: 0, clipPath: 'inset(0 100% 0 0)', filter: 'blur(3px)' });
+      if (accent) gsap.set(accent.querySelectorAll('.accent-word'), { opacity: 0, y: 20, filter: 'blur(6px)' });
+      if (timeEl) gsap.set(timeEl, { opacity: 0, y: 10 });
+
+      // 0. Background fades in
+      tl.to([bg, greetingRef.current], { opacity: 1, duration: 0.25, ease: 'power2.out' }, 0);
+
+      // 1. Ambient orbs expand
+      tl.to([orb1, orb2], { opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' }, 0.1);
+
+      // 2. Light rays sweep in
+      tl.to([ray1, ray2], { scaleX: 1, opacity: 0.12, duration: 0.4, ease: 'power3.inOut' }, 0.2);
+
+      // 3. "HELLO" — clip-path wipe reveal
+      if (chars?.length) {
+        tl.to(chars, {
+          opacity: 1,
+          clipPath: 'inset(0 0% 0 0)',
+          filter: 'blur(0px)',
+          stagger: { each: 0.04, from: 'start' },
+          duration: 0.4,
+          ease: 'power4.out',
+        }, 0.3);
+      }
+
+      // 4. "I'm Zainul" rises with blur
+      if (accent) {
+        tl.to(accent.querySelectorAll('.accent-word'), {
+          opacity: 1,
+          y: 0,
+          filter: 'blur(0px)',
+          stagger: 0.08,
+          duration: 0.4,
+          ease: 'power3.out',
+        }, 0.6);
+      }
+
+      // 5. Particles scatter
+      tl.to([p1, p2, p3, p4], {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        stagger: { each: 0.06, from: 'random' },
+        duration: 0.35,
+        ease: 'back.out(1.5)',
+      }, 0.5);
+
+      // 6. Time string fades in
+      if (timeEl) {
+        tl.to(timeEl, { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0.9);
+      }
+
+      // 7. Particles drift up
+      gsap.to([p1, p2, p3, p4], {
+        y: -80,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power1.in',
+        stagger: { each: 0.2, repeat: 1, from: 'random' },
+        delay: 0.8,
+      });
+
+      // 8. Orbs breathe
+      gsap.to([orb1, orb2], {
+        scale: 1.12,
+        duration: 1.2,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: -1,
+        stagger: 0.3,
+      });
+
+      // 9. Entire greeting — fade + scale out
+      tl.to(greetingRef.current, {
+        opacity: 0,
+        scale: 1.03,
+        duration: 0.5,
+        ease: 'power2.in',
+      }, 1.7);
+
+      tl.call(() => {
+        setGreetingDone(true);
+      }, [], 2.2);
+    }, greetingRef);
+
+    return () => ctx.revert();
+  }, [greetingDone, setGreetingDone]);
 
   // Frame scrubbing
   const updateFrame = useCallback(() => {
@@ -355,13 +493,50 @@ export default function ScrollHero() {
           001 / 200
         </div>
 
-        {/* Loading overlay */}
-        {!ready && (
-          <div className="load-overlay">
-            <div className="load-bar-wrap">
-              <div className="load-bar" style={{ width: `${loadProgress * 100}%` }} />
+        {/* Greeting overlay — award-winning cinematic intro */}
+        {!greetingDone && (
+          <div ref={greetingRef} className="greet-overlay">
+            {/* Background */}
+            <div ref={greetingOverlayBgRef} className="greet-bg" />
+
+            {/* Ambient gradient orbs */}
+            <div ref={greetingOrb1Ref} className="greet-orb greet-orb--1" />
+            <div ref={greetingOrb2Ref} className="greet-orb greet-orb--2" />
+
+            {/* Light rays */}
+            <div ref={greetingRay1Ref} className="greet-ray greet-ray--1" />
+            <div ref={greetingRay2Ref} className="greet-ray greet-ray--2" />
+
+            {/* Floating particles */}
+            <div ref={greetingParticle1Ref} className="greet-particle" style={{ top: '30%', left: '15%' }} />
+            <div ref={greetingParticle2Ref} className="greet-particle" style={{ top: '60%', left: '80%' }} />
+            <div ref={greetingParticle3Ref} className="greet-particle" style={{ top: '20%', left: '65%' }} />
+            <div ref={greetingParticle4Ref} className="greet-particle" style={{ top: '70%', left: '25%' }} />
+
+            {/* Central content */}
+            <div className="greet-content">
+              <div ref={greetingCharsRef} className="greet-text">
+                {'HELLO'.split('').map((c, i) => (
+                  <span key={i} className="greet-char">
+                    {c === ' ' ? '\u00A0' : c}
+                  </span>
+                ))}
+              </div>
+              <div ref={greetingAccentRef} className="greet-accent">
+                <span className="accent-word">I&apos;m</span>
+                <span className="accent-word accent-name">&nbsp;Zainul</span>
+              </div>
+              <div ref={greetingTimeRef} className="greet-time">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="greet-time-icon">
+                  <circle cx="6" cy="6" r="5.5" stroke="currentColor" strokeWidth="1" />
+                  <path d="M6 3.5V6l1.8 1.8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                </svg>
+                Good {getDayPeriod()} &mdash; {getTimeString()}
+              </div>
             </div>
-            <span className="load-text">Loading {Math.round(loadProgress * 100)}%</span>
+
+            {/* Bottom accent line */}
+            <div className="greet-bottom-line" />
           </div>
         )}
       </div>
