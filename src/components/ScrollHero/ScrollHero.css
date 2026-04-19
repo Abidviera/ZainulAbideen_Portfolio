@@ -443,7 +443,8 @@
   50% { transform: translateY(8px); }
 }
 
-/* ── Responsive ─────────────────────────────────────────────── */
+/* ── Responsive — Mobile First ─────────────────────────────── */
+/* ── 1024 ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .scroll-hero-text {
     padding: 100px 48px 60px;
@@ -451,47 +452,247 @@
   }
 }
 
+/* ── 768: Full Mobile Layout ─────────────────────────────── */
 @media (max-width: 768px) {
+  /* Reduce scroll height on mobile */
+  .scroll-hero-container {
+    height: 500vh;
+  }
+
+  /* Sticky stays full viewport */
+  .scroll-hero-sticky {
+    height: 100svh;
+    height: 100dvh;
+  }
+
+  /* Text overlay: bottom of screen, full width */
   .scroll-hero-text {
-    padding: 90px 24px 60px;
-    max-width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
     justify-content: flex-end;
+    padding: 80px 20px 40px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .scroll-hero-label {
+    margin-bottom: 12px;
+  }
+
+  .scroll-hero-line {
+    width: 32px;
+    height: 2px;
+    margin-bottom: 12px;
   }
 
   .scroll-hero-name {
-    font-size: clamp(36px, 9vw, 56px);
-    letter-spacing: -0.02em;
+    font-size: clamp(28px, 8vw, 40px);
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-bottom: 10px;
+    /* Allow word break */
+    word-break: break-word;
   }
 
-  .scroll-hero-stats {
-    gap: 16px;
-    flex-wrap: wrap;
+  .scroll-hero-subtitle {
+    font-size: clamp(10px, 2.5vw, 13px);
+    letter-spacing: 0.06em;
+    gap: 6px 10px;
+    margin-bottom: 10px;
   }
 
-  .scroll-stat-num { font-size: 22px; }
+  .scroll-desc {
+    font-size: clamp(12px, 3vw, 14px);
+    line-height: 1.6;
+    margin-bottom: 16px;
+    max-width: 100%;
+  }
 
+  /* Actions: stacked buttons */
   .scroll-hero-actions {
     flex-direction: column;
     width: 100%;
+    gap: 8px;
+    margin-bottom: 20px;
   }
 
-  .scroll-cta-primary,
-  .scroll-cta-secondary {
+  .sh-btn {
+    font-size: 13px;
+    padding: 13px 20px;
     width: 100%;
     justify-content: center;
     text-align: center;
+    border-radius: var(--radius-md);
   }
 
-  .scroll-indicator { right: 4vw; top: 45%; }
-  .frame-counter { right: 4vw; }
+  /* Stats: compact row */
+  .scroll-hero-stats {
+    gap: 14px;
+    flex-wrap: wrap;
+  }
 
+  .scroll-stat-num {
+    font-size: 18px;
+  }
+
+  .scroll-stat-label {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-stat-divider {
+    height: 28px;
+  }
+
+  /* Scroll indicator: subtle */
+  .scroll-indicator {
+    right: 3vw;
+    top: 45%;
+  }
+
+  .scroll-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+  }
+
+  .frame-counter {
+    right: 3vw;
+    font-size: 10px;
+  }
+
+  /* Gradient: dark overlay from bottom */
   .scroll-hero-gradient {
     background: linear-gradient(
       to top,
-      rgba(29, 29, 31, 0.3) 0%,
-      rgba(29, 29, 31, 0.15) 40%,
-      rgba(29, 29, 31, 0.05) 70%,
-      transparent 100%
+      rgba(29, 29, 31, 0.85) 0%,
+      rgba(29, 29, 31, 0.5) 20%,
+      rgba(29, 29, 31, 0.15) 50%,
+      transparent 75%
     );
   }
+
+  /* Greeting overlay: center content for mobile */
+  .greet-overlay {
+    padding: 20px;
+  }
+
+  .greet-text {
+    font-size: clamp(48px, 14vw, 80px);
+  }
+
+  .greet-accent .accent-word {
+    font-size: clamp(14px, 3.5vw, 20px);
+  }
+
+  .greet-accent .accent-name {
+    font-size: clamp(16px, 4vw, 22px);
+  }
+
+  .greet-time {
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-top: 16px;
+  }
+
+  .greet-orb--1 {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    left: -80px;
+    filter: blur(50px);
+  }
+
+  .greet-orb--2 {
+    width: 250px;
+    height: 250px;
+    bottom: -100px;
+    right: -60px;
+    filter: blur(50px);
+  }
+
+  /* Particles: fewer on mobile */
+  .greet-particle:nth-child(n+6) {
+    display: none;
+  }
 }
+
+/* ── 480: Ultra Compact ─────────────────────────────── */
+@media (max-width: 480px) {
+  .scroll-hero-container {
+    height: 400vh;
+  }
+
+  .scroll-hero-name {
+    font-size: clamp(24px, 9vw, 34px);
+  }
+
+  .scroll-stat-num {
+    font-size: 16px;
+  }
+
+  .sh-btn {
+    font-size: 12px;
+    padding: 12px 16px;
+  }
+
+  .greet-text {
+    font-size: clamp(40px, 14vw, 60px);
+  }
+
+  .greet-orb--1,
+  .greet-orb--2 {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+/* ── 375: Very Small Phones ──────────────────────── */
+@media (max-width: 375px) {
+  .scroll-hero-container {
+    height: 380vh;
+  }
+
+  .scroll-hero-name {
+    font-size: clamp(22px, 9vw, 32px);
+  }
+
+  .scroll-stat-num {
+    font-size: 14px;
+  }
+
+  .sh-btn {
+    font-size: 11px;
+    padding: 11px 14px;
+  }
+}
+
+/* ── Landscape Mobile ─────────────────────────────── */
+@media (max-width: 768px) and (orientation: landscape) {
+  .scroll-hero-container {
+    height: 400vh;
+  }
+
+  .scroll-hero-text {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 20px;
+  }
+
+  .scroll-hero-name {
+    font-size: clamp(24px, 6vw, 36px);
+  }
+
+  .scroll-hero-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+

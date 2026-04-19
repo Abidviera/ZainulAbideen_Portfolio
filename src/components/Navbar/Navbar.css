@@ -1,1 +1,237 @@
-/* Navbar styles are in index.css */
+/* ── Hamburger Button ─────────────────────────────────────────────── */
+.navbar-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+  border: none;
+  position: relative;
+  z-index: calc(var(--z-nav) + 10);
+}
+
+.navbar-hamburger:hover {
+  background: var(--border);
+}
+
+.navbar-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-heading);
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.navbar-hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  background: var(--accent);
+}
+
+.navbar-hamburger.open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.navbar-hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  background: var(--accent);
+}
+
+/* Dark nav on hero: white hamburger lines */
+.navbar:not(.scrolled) .navbar-hamburger span {
+  background: #fff;
+}
+
+/* ── Mobile Nav Drawer ─────────────────────────────────────────── */
+.mobile-nav {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-nav) - 1);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.1, 0.25, 1),
+              transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transform: translateY(-12px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.mobile-nav.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ── Mobile Nav Header ──────────────────────────────────────────── */
+.mobile-nav-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  z-index: 2;
+}
+
+.mobile-nav a.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.mobile-nav a.navbar-logo .navbar-logo-text {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: -0.02em;
+}
+
+.mobile-nav .theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s var(--ease-bounce);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav .theme-toggle:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+/* ── Mobile Nav Links ────────────────────────────────────────────── */
+.mobile-nav a:not(.navbar-logo):not(.mobile-nav-cta):not(.social-icon-btn):not(.theme-toggle) {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 8vw, 36px);
+  font-weight: 700;
+  color: var(--text-heading);
+  padding: 10px 24px;
+  border-radius: var(--radius-md);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  letter-spacing: -0.02em;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav a:not(.navbar-logo):not(.mobile-nav-cta):not(.social-icon-btn):not(.theme-toggle):hover,
+.mobile-nav a:not(.navbar-logo):not(.mobile-nav-cta):not(.social-icon-btn):not(.theme-toggle):active {
+  background: var(--accent-bg);
+  color: var(--accent);
+  transform: scale(0.97);
+}
+
+.mobile-nav a:not(.navbar-logo):not(.mobile-nav-cta):not(.social-icon-btn):not(.theme-toggle).active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* ── Mobile Nav Footer ──────────────────────────────────────────── */
+.mobile-nav-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  background: var(--bg);
+  z-index: 2;
+}
+
+.mobile-nav-social {
+  display: flex;
+  gap: 10px;
+}
+
+.mobile-nav-social .social-icon-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  transition: all 0.25s var(--ease-bounce);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav-social .social-icon-btn:hover {
+  border-color: var(--accent-border);
+  background: var(--accent-bg);
+  color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.mobile-nav-cta {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  padding: 14px 24px;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav-cta:active {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+/* ── Desktop: hide mobile elements ─────────────────────────────── */
+@media (min-width: 769px) {
+  .mobile-nav { display: none; }
+  .navbar-hamburger { display: none !important; }
+}

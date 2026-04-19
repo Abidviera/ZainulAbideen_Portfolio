@@ -432,22 +432,35 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── Responsive ─────────────────────────────────────────────── */
+/* ── Responsive — Mobile First ─────────────────────────────── */
+/* ── 1200 ─────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .fh-phase-1 { left: 25%; }
 }
 
+/* ── 1024 ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .fh-phase-1 { left: 15%; }
   .fh-phase-1-inner { padding-right: 20px; }
 }
 
+/* ── 768: Full Mobile Layout ─────────────────────────────── */
 @media (max-width: 768px) {
-  .footer-hero-section { height: 500vh; }
+  .footer-hero-section {
+    height: 500vh;
+    /* Reduce scroll distance on mobile for better UX */
+  }
 
+  /* Sticky stays full height */
+  .footer-hero-sticky {
+    height: 100svh;
+    height: 100dvh;
+  }
+
+  /* Phase 1: top-left, compact */
   .fh-phase-1 {
     left: 0;
-    padding: 80px 24px 60px;
+    padding: 90px 20px 40px;
     justify-content: flex-end;
     align-items: flex-start;
   }
@@ -457,28 +470,207 @@
     padding-right: 0;
   }
 
-  .fh-phase1-title { font-size: clamp(36px, 10vw, 56px); }
-
-  .fh-phase-2 {
-    padding: 0 0 56px 24px;
+  .fh-phase1-title {
+    font-size: clamp(32px, 10vw, 48px);
+    margin-bottom: 16px;
+    line-height: 1.0;
   }
 
-  .fh-phase3-title { font-size: clamp(32px, 9vw, 52px); }
+  .fh-phase1-sub {
+    font-size: 10px;
+    margin-bottom: 12px;
+  }
 
-  .fh-stats-row { gap: 20px; }
-  .fh-stat-num { font-size: 24px; }
+  .fh-scroll-hint {
+    display: none;
+  }
 
-  .fh-progress-track { left: 10px; }
-  .fh-phase-indicators { right: 10px; }
+  /* Phase 2: bottom-left, minimal */
+  .fh-phase-2 {
+    padding: 0 0 48px 20px;
+  }
 
+  .fh-phase2-heading {
+    font-size: clamp(18px, 4vw, 26px);
+  }
+
+  .fh-email-badge {
+    font-size: 9px;
+    padding: 6px 12px;
+  }
+
+  /* Phase 3: center CTA */
+  .fh-phase-3 {
+    padding: 0 16px;
+  }
+
+  .fh-phase3-inner {
+    padding: 60px 16px 40px;
+    max-width: 100%;
+  }
+
+  .fh-phase3-title {
+    font-size: clamp(28px, 8vw, 44px);
+    margin-bottom: 12px;
+  }
+
+  .fh-phase3-sub {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 100%;
+  }
+
+  /* CTA group: stacked on mobile */
   .fh-cta-group {
     flex-direction: column;
     width: 100%;
+    gap: 10px;
+    margin-bottom: 28px;
   }
 
   .fh-cta-primary,
   .fh-cta-secondary {
     width: 100%;
+    max-width: 300px;
     justify-content: center;
+    padding: 14px 24px;
+    font-size: 14px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Stats row: compact */
+  .fh-stats-row {
+    gap: 16px;
+    padding-top: 20px;
+  }
+
+  .fh-stat-num {
+    font-size: 20px;
+  }
+
+  .fh-stat-label {
+    font-size: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .fh-stat-divider {
+    height: 24px;
+  }
+
+  /* Progress track + dots: hide on mobile */
+  .fh-progress-track,
+  .fh-phase-indicators {
+    display: none;
+  }
+
+  /* Eyebrow tag */
+  .fh-eyebrow-tag {
+    font-size: 9px;
+    margin-bottom: 10px;
+  }
+
+  /* Gradient adjustments */
+  .fh-gradient-top {
+    height: 12vh;
+  }
+
+  .fh-gradient-bottom {
+    height: 16vh;
+  }
+
+  .fh-gradient-side-left,
+  .fh-gradient-side-right {
+    width: 8%;
+  }
+}
+
+/* ── 480: Ultra Compact ──────────────────────────────────── */
+@media (max-width: 480px) {
+  .footer-hero-section {
+    height: 450vh;
+  }
+
+  .fh-phase1-title {
+    font-size: clamp(28px, 12vw, 40px);
+  }
+
+  .fh-phase3-title {
+    font-size: clamp(24px, 8vw, 36px);
+  }
+
+  .fh-phase3-sub {
+    font-size: 12px;
+  }
+
+  .fh-stats-row {
+    gap: 12px;
+  }
+
+  .fh-stat-num {
+    font-size: 18px;
+  }
+
+  .fh-cta-primary,
+  .fh-cta-secondary {
+    font-size: 13px;
+    padding: 13px 20px;
+  }
+}
+
+/* ── Landscape Mobile ──────────────────────────────────── */
+@media (max-width: 768px) and (orientation: landscape) {
+  .footer-hero-section {
+    height: 400vh;
+  }
+
+  .fh-phase-1 {
+    padding: 60px 20px 40px;
+  }
+
+  .fh-phase-2 {
+    padding: 0 0 40px 20px;
+  }
+
+  .fh-phase3-inner {
+    padding: 40px 16px 32px;
+  }
+}
+
+/* ── Safe Area Insets ──────────────────────────────────── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .fh-phase-2 {
+      padding-bottom: calc(48px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ── 375px: Very Small Phones ──────────────────────── */
+@media (max-width: 375px) {
+  .footer-hero-section {
+    height: 400vh;
+  }
+
+  .fh-phase1-title {
+    font-size: clamp(24px, 12vw, 34px);
+  }
+
+  .fh-phase3-title {
+    font-size: clamp(22px, 8vw, 32px);
+  }
+
+  .fh-phase3-sub {
+    font-size: 11px;
+  }
+
+  .fh-stat-num {
+    font-size: 16px;
+  }
+
+  .fh-cta-primary,
+  .fh-cta-secondary {
+    font-size: 12px;
+    padding: 12px 18px;
   }
 }

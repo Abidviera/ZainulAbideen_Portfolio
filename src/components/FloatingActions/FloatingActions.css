@@ -9,6 +9,8 @@
   align-items: flex-end;
   gap: var(--space-sm);
   pointer-events: none;
+  /* Prevent interaction blocking */
+  isolation: isolate;
 }
 
 /* ── Scroll to Top ─────────────────────────────────────────────── */
@@ -30,6 +32,8 @@
   box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
   transition: all 0.25s var(--ease-bounce);
   text-decoration: none;
+  pointer-events: all;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .floating-email-btn:hover {
@@ -48,19 +52,97 @@
   position: static;
 }
 
-/* ── Mobile: keep stacked, compact ───────────────────────────── */
-@media (max-width: 640px) {
+/* ── WhatsApp Button (targets .whatsapp-btn from WhatsApp.jsx) ── */
+.whatsapp-btn {
+  pointer-events: all;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── Mobile: Thumb-Zone Optimized ──────────────────────────────── */
+@media (max-width: 768px) {
   .floating-actions {
-    bottom: calc(var(--space-md) + 60px);
-    right: var(--space-md);
-    gap: 10px;
+    bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+    right: var(--space-sm);
+    gap: 8px;
+  }
+
+  .floating-email-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    box-shadow: 0 4px 20px rgba(0, 122, 255, 0.35),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* WhatsApp button: mobile sizing */
+  .whatsapp-btn {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    box-shadow: 0 4px 20px rgba(37, 211, 102, 0.35),
+                0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .floating-actions .scroll-to-top {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+
+  /* Touch press feedback */
+  .whatsapp-btn:active,
+  .floating-email-btn:active,
+  .floating-actions .scroll-to-top:active {
+    transform: scale(0.94);
+  }
+
+  /* Disable hover on touch */
+  .floating-email-btn:hover,
+  .whatsapp-btn:hover {
+    transform: none;
   }
 }
 
 @media (max-width: 480px) {
   .floating-actions {
-    bottom: calc(var(--space-sm) + 60px);
-    right: var(--space-sm);
-    gap: 10px;
+    bottom: calc(var(--space-xs) + env(safe-area-inset-bottom, 0px));
+    right: var(--space-xs);
+    gap: 6px;
+  }
+
+  .floating-email-btn,
+  .whatsapp-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .floating-actions .scroll-to-top {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ── Landscape Mobile ──────────────────────────────────────────── */
+@media (max-width: 768px) and (orientation: landscape) {
+  .floating-actions {
+    bottom: calc(50vh - 60px);
+  }
+}
+
+/* ── Scroll To Top Button Animation ─────────────────────────────── */
+@media (max-width: 768px) {
+  .scroll-to-top {
+    animation: mobileScrollToTopIn 0.3s var(--ease-bounce) forwards;
+  }
+
+  @keyframes mobileScrollToTopIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
 }
