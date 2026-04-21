@@ -216,7 +216,7 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
     return () => ctx.revert();
   }, [greetingDone, setGreetingDone]);
 
-  // Frame scrubbing via ScrollTrigger scrub — smooth on all devices
+  // Frame scrubbing — ultra-smooth on mobile via RAF + normalized scroll
   useEffect(() => {
     if (!ready) return;
     const container = containerRef.current;
@@ -226,22 +226,45 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
 
     img.src = imagesRef.current[0].src;
 
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      || window.matchMedia('(max-width: 768px)').matches;
+    const RAF_INTERVAL = isMobile ? 2 : 1; // skip every other frame on mobile
+    const SCRUB_VALUE = isMobile ? 1.5 : 0.8;
+    const FRAME_STEP = isMobile ? 2 : 1; // advance 2 frames per update on mobile
+
     let st = null;
+    let frameCount = 0;
+    let cachedSectionHeight = 0;
+    let cachedViewportHeight = 0;
+
+    const updateCache = () => {
+      cachedSectionHeight = container.offsetHeight;
+      cachedViewportHeight = window.innerHeight;
+    };
 
     const setupTrigger = () => {
       if (st) {
         st.kill();
         st = null;
       }
+      updateCache();
 
       st = ScrollTrigger.create({
         trigger: container,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: 0.8,
+        scrub: SCRUB_VALUE,
+        invalidateOnRefresh: true,
+        allowCPropOnTouchDevices: true,
         onUpdate: (self) => {
+          frameCount++;
+          // Skip frames on mobile to reduce image swap pressure
+          if (isMobile && frameCount % FRAME_STEP !== 0) return;
           const frame = Math.floor(self.progress * (TOTAL_FRAMES - 1));
-          img.src = imagesRef.current[frame].src;
+          const targetImg = imagesRef.current[frame];
+          if (targetImg && img.src !== targetImg.src) {
+            img.src = targetImg.src;
+          }
           if (counter) {
             counter.textContent = `${String(frame + 1).padStart(3, '0')} / ${TOTAL_FRAMES}`;
           }
@@ -251,16 +274,27 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
 
     setupTrigger();
 
-    // Recalculate on resize (handles mobile address bar show/hide)
     const onResize = () => {
+      updateCache();
       ScrollTrigger.refresh();
       setupTrigger();
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResize, { passive: true });
+
+    // Handle mobile address bar show/hide
+    const onOrientationChange = () => {
+      setTimeout(() => {
+        updateCache();
+        ScrollTrigger.refresh();
+        setupTrigger();
+      }, 100);
+    };
+    window.addEventListener('orientationchange', onOrientationChange);
 
     return () => {
       if (st) st.kill();
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onOrientationChange);
     };
   }, [ready]);
 
@@ -370,6 +404,10 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
       }
 
       // 8b. Description scroll exit — fade out independently
+      const isMobile = window.matchMedia('(max-width: 768px)').matches;
+      const exitDistance = window.innerHeight * (isMobile ? 0.8 : 1.5);
+      const indicatorExitDist = window.innerHeight * (isMobile ? 0.3 : 0.5);
+
       if (descRef.current) {
         gsap.to(descRef.current, {
           y: -60,
@@ -378,7 +416,7 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top 45%',
-            end: `+=${window.innerHeight * 1.5}`,
+            end: `+=${exitDistance}`,
             scrub: 1,
           },
         });
@@ -404,7 +442,7 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top 45%',
-            end: `+=${window.innerHeight * 1.5}`,
+            end: `+=${exitDistance}`,
             scrub: 1,
           },
         });
@@ -418,7 +456,7 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
           scrollTrigger: {
             trigger: containerRef.current,
             start: 'top 45%',
-            end: `+=${window.innerHeight * 0.5}`,
+            end: `+=${indicatorExitDist}`,
             scrub: 1,
           },
         });
@@ -439,7 +477,6 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
 
         {/* Text content */}
         <div className="scroll-hero-text">
-       
 
           {/* Accent line */}
           <div ref={lineRef} className="scroll-hero-line" />
@@ -514,7 +551,7 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
           001 / 200
         </div>
 
-        {/* Greeting overlay — award-winning cinematic intro */}
+        {/* Greeting overlay — cinematic intro */}
         {!greetingDone && (
           <div ref={greetingRef} className="greet-overlay">
             {/* Background */}

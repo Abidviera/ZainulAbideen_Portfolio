@@ -21,6 +21,9 @@
   object-position: center;
   z-index: 0;
   display: block;
+  will-change: contents;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Cinematic dark gradient — text on left, image fades right */

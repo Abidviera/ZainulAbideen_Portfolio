@@ -19,6 +19,8 @@ export default function FooterHero() {
   const imagesRef = useRef([]);
   const rafRef = useRef(null);
   const isInViewRef = useRef(false);
+  const cachedHeightRef = useRef(null); // cached section height
+  const cachedViewportRef = useRef(null); // cached viewport height
 
   // Preload frames progressively — first batch immediately, rest in background
   useEffect(() => {
@@ -73,24 +75,28 @@ export default function FooterHero() {
     imagesRef.current = imgs;
   }, []);
 
-  // Frame scrubbing — no GSAP pin, pure scroll event + CSS sticky
+  // Frame scrubbing — use ScrollTrigger's RAF loop (batches reads, avoids layout thrashing)
   const updateFrame = useCallback(() => {
     if (!imagesRef.current.length) return;
 
     const section = sectionRef.current;
     if (!section) return;
 
-    const rect = section.getBoundingClientRect();
-    const sectionHeight = section.offsetHeight;
-    const viewportHeight = window.innerHeight;
+    // Use refs to avoid stale closure — values updated by useEffect
+    const sectionHeight = cachedHeightRef.current ?? section.offsetHeight;
+    const viewportHeight = cachedViewportRef.current ?? window.innerHeight;
     const scrollableDistance = sectionHeight - viewportHeight;
 
-    const scrolled = -rect.top;
-    const progress = Math.max(0, Math.min(1, scrolled / scrollableDistance));
+    const sectionTop = section.getBoundingClientRect().top;
+    const scrolled = Math.max(0, -sectionTop);
+    const progress = Math.min(1, scrolled / scrollableDistance);
 
     const frame = Math.floor(progress * (TOTAL_FRAMES - 1));
     if (imgRef.current) {
-      imgRef.current.src = imagesRef.current[frame].src;
+      const targetImg = imagesRef.current[frame];
+      if (targetImg && imgRef.current.src !== targetImg.src) {
+        imgRef.current.src = targetImg.src;
+      }
     }
     if (progressRef.current) {
       progressRef.current.style.height = `${progress * 100}%`;
@@ -110,6 +116,10 @@ export default function FooterHero() {
 
     imgRef.current.src = imagesRef.current[0].src;
 
+    // Initialize cached refs
+    cachedHeightRef.current = section.offsetHeight;
+    cachedViewportRef.current = window.innerHeight;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -121,11 +131,27 @@ export default function FooterHero() {
     observer.observe(section);
 
     window.addEventListener('scroll', onScroll, { passive: true });
+
+    const onResize = () => {
+      cachedHeightRef.current = section.offsetHeight;
+      cachedViewportRef.current = window.innerHeight;
+      updateFrame();
+    };
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        cachedHeightRef.current = section.offsetHeight;
+        cachedViewportRef.current = window.innerHeight;
+        updateFrame();
+      }, 100);
+    });
+
     updateFrame();
 
     return () => {
       observer.disconnect();
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [ready, onScroll, updateFrame]);
@@ -134,14 +160,20 @@ export default function FooterHero() {
   useEffect(() => {
     if (!ready) return;
 
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+      || window.matchMedia('(max-width: 768px)').matches;
+    const scrubVal = isMobile ? 1.8 : 1.2;
+    const endDistance = window.innerHeight * (isMobile ? 3 : 5);
+
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: `+=${window.innerHeight * 5}`,
-          scrub: 1.2,
+          end: `+=${endDistance}`,
+          scrub: scrubVal,
           pin: false,
+          anticipatePin: 1,
         },
       });
 

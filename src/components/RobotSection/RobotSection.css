@@ -1,0 +1,138 @@
+.robot-section {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.robot-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.robot-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-xl);
+  pointer-events: none;
+}
+
+.robot-content {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  pointer-events: auto;
+}
+
+.robot-label {
+  align-self: flex-start;
+}
+
+.robot-heading {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  text-shadow: 0 4px 32px rgba(0, 0, 0, 0.6);
+}
+
+.robot-subtext {
+  font-size: 17px;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.7;
+  max-width: 420px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+.robot-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.robot-cta {
+  pointer-events: auto;
+}
+
+.robot-ghost {
+  pointer-events: auto;
+  color: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.robot-ghost:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.robot-corner-badge {
+  position: absolute;
+  bottom: var(--space-lg);
+  right: var(--space-xl);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.robot-corner-badge .label-chip {
+  color: rgba(255, 255, 255, 0.4);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 768px) {
+  .robot-overlay {
+    align-items: flex-end;
+    padding: 0 var(--space-lg);
+    padding-bottom: var(--space-3xl);
+  }
+
+  .robot-content {
+    max-width: 100%;
+    gap: var(--space-sm);
+  }
+
+  .robot-heading {
+    font-size: clamp(28px, 8vw, 44px);
+  }
+
+  .robot-subtext {
+    font-size: 15px;
+    max-width: 100%;
+  }
+
+  .robot-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .robot-cta,
+  .robot-ghost {
+    width: 100%;
+    max-width: 280px;
+    justify-content: center;
+  }
+
+  .robot-corner-badge {
+    bottom: var(--space-lg);
+    right: var(--space-md);
+  }
+}
