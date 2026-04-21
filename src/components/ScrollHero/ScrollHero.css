@@ -454,9 +454,9 @@
 
 /* ── 768: Full Mobile Layout ─────────────────────────────── */
 @media (max-width: 768px) {
-  /* Reduce scroll height on mobile */
+  /* Enough scroll distance for smooth 200-frame scrubbing */
   .scroll-hero-container {
-    height: 500vh;
+    height: 600vh;
   }
 
   /* Sticky stays full viewport */
@@ -625,7 +625,7 @@
 /* ── 480: Ultra Compact ─────────────────────────────── */
 @media (max-width: 480px) {
   .scroll-hero-container {
-    height: 400vh;
+    height: 550vh;
   }
 
   .scroll-hero-name {
@@ -655,7 +655,7 @@
 /* ── 375: Very Small Phones ──────────────────────── */
 @media (max-width: 375px) {
   .scroll-hero-container {
-    height: 380vh;
+    height: 500vh;
   }
 
   .scroll-hero-name {
@@ -675,7 +675,7 @@
 /* ── Landscape Mobile ─────────────────────────────── */
 @media (max-width: 768px) and (orientation: landscape) {
   .scroll-hero-container {
-    height: 400vh;
+    height: 500vh;
   }
 
   .scroll-hero-text {

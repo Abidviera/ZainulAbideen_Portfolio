@@ -4,6 +4,17 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import "./ProjectDetail.css";
 
+function rafThrottle(fn) {
+  let rafId = null;
+  return function (...args) {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(() => {
+      fn.apply(this, args);
+      rafId = null;
+    });
+  };
+}
+
 const projectsData = [
   {
     id: 1,
@@ -56,45 +67,49 @@ const projectsData = [
     slug: "melizzo-ecommerce",
     title: "Melizzo E-Commerce",
     category: "E-Commerce",
-    subcategory: "Full-Stack Platform",
+    subcategory: "Full-Stack Production Platform",
     description:
-      "A comprehensive e-commerce platform combining a React-powered storefront with an ASP.NET Core backend. Features include product catalog management, shopping cart, wishlist, secure payment processing, order tracking, and a powerful admin dashboard.",
+      "Production-deployed full-stack e-commerce platform for Melizzo — a multi-category online retail business. I designed, architected, and built the complete system end-to-end: React SPA storefront, ASP.NET Core Web API, SQL Server database with EF Core, Stripe payment processing, admin dashboard, and a fully automated Azure DevOps CI/CD pipeline. Every layer — from database schema design to CDN configuration — was implemented and deployed by me.",
     longDescription:
-      "Melizzo represents the pinnacle of modern e-commerce architecture. Every pixel was crafted with conversion in mind. The storefront delivers sub-25ms page loads through aggressive caching and code splitting. The backend handles thousands of concurrent transactions with a distributed architecture ensuring 99.9% uptime.",
-    tech: ["React", "ASP.NET Core", "SQL Server", "JWT", "Stripe"],
-    img: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1600&q=85",
+      "Melizzo E-Commerce is a production-grade platform where I served as the sole full-stack developer, owning every component from database schema design to Azure production deployment. The React 18 SPA delivers a fast, accessible storefront with lazy-loaded routes, context-based state management, and a component library built for reusability. The ASP.NET Core 8 Web API follows Clean Architecture with repository/service layers, global exception handling, and Swagger documentation. The SQL Server database is normalized with proper indexes, foreign keys, and stored procedures for high-frequency queries. Stripe integration handles payments with 3D Secure support, automatic refunds, and webhook-driven order status updates. The Azure DevOps pipeline automates the entire release lifecycle: code commit triggers a build, followed by deployment to staging for smoke testing, then a manual approval gate before production rollout. Azure Blob Storage handles product images and media, delivered globally via CloudFlare CDN with caching headers and image optimization. The admin dashboard gives complete control over products, orders, customers, coupons, and analytics — all built with the same care as the customer-facing storefront.",
+    tech: ["React 18", "ASP.NET Core 8", "SQL Server", "Entity Framework Core 8", "Stripe Payments", "Azure DevOps", "Azure App Service", "Azure Blob Storage", "CloudFlare CDN", "JWT", "C#", "TypeScript"],
+    img: "/projects/melizzo/Screenshot 2026-04-21 121006.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1600&q=85",
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1600&q=85",
-      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1600&q=85",
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&q=85",
+      "/projects/melizzo/Screenshot 2026-04-21 121006.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121025.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121039.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121103.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121123.webp",
     ],
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    video: "",
     color: "#6366f1",
     accentColor: "#4f46e5",
     year: "2025",
     domain: "https://melizzo.com",
-    awards: ["Awwwards Honorable Mention", "CSS Design Awards"],
+    awards: ["Production Deployed — End-to-End", "Full-Stack Ownership (Frontend + Backend + DB + Azure DevOps)"],
     stats: [
       { value: 99, suffix: "%", label: "Uptime SLA" },
-      { value: 3, suffix: "x", label: "Conversion Rate Improvement" },
-      { value: 25, suffix: "ms", label: "Average Load Time" },
       { value: 4, suffix: "K+", label: "Products Listed" },
+      { value: 3, suffix: "x", label: "Conversion Rate" },
+      { value: 25, suffix: "ms", label: "Avg Load Time" },
     ],
     features: [
-      { title: "Product Catalog Management", desc: "Rich product data with variants, bundles, and dynamic pricing" },
-      { title: "Secure Payment Gateway", desc: "PCI-compliant Stripe integration with 3D Secure support" },
-      { title: "Shopping Cart & Wishlist", desc: "Persistent cart with real-time sync across devices" },
-      { title: "Order Tracking & History", desc: "Complete order lifecycle with real-time status updates" },
-      { title: "Customer Reviews & Ratings", desc: "Verified purchase reviews with photo uploads" },
-      { title: "Discount & Coupon Engine", desc: "Flexible promo rules with usage limits and conditions" },
+      { title: "Full-Stack Architecture (React + .NET + SQL)", desc: "React 18 SPA storefront with Clean Architecture ASP.NET Core 8 Web API. I designed the entire system: database schema with 15+ tables (Products, Categories, Orders, Customers, Payments, Reviews, Coupons, CartItems, Wishlists), Entity Framework Core with migrations, and RESTful API endpoints with Swagger documentation." },
+      { title: "Stripe Payment Integration", desc: "Full Stripe.js + Elements integration for card checkout. Implemented 3D Secure (SCA) support, automatic payment confirmation, refund processing, webhook handlers for payment events (succeeded, failed, disputed), and Stripe Dashboard order reconciliation." },
+      { title: "Admin Dashboard", desc: "Complete admin panel for managing products (CRUD, variants, bundles, pricing), orders (status management, invoice generation), customers (profiles, order history), coupons (create, limits, conditions), and analytics (sales charts, top products, revenue tracking). Role-based access for admin vs staff." },
+      { title: "Azure DevOps CI/CD Pipeline", desc: "I configured the complete Azure DevOps pipeline end-to-end: CI build (restore → compile → test → publish), staged deployment to Azure App Service (staging slot), automated smoke tests on staging, manual approval gate, then production deployment with zero-downtime swap. Azure Blob Storage for media assets with lifecycle management policies." },
+      { title: "JWT Authentication & Security", desc: "JWT Bearer token authentication with refresh token rotation. Password hashing with BCrypt, role-based authorization (Admin, Customer, Staff), CORS policy configuration, rate limiting on auth endpoints, and input validation using Data Annotations and FluentValidation on all API endpoints." },
+      { title: "Performance & CDN Optimization", desc: "React lazy-loaded routes for code splitting. CloudFlare CDN with cache rules for static assets and product images. Azure Blob Storage with Content Delivery Network (CDN) integration. Database indexes on high-frequency query columns. Paging and filtering on product listing endpoints to prevent N+1 queries." },
     ],
     techDetails: [
-      { label: "Frontend", value: "React 18 with Server Components" },
-      { label: "Backend", value: "ASP.NET Core 8 with Clean Architecture" },
-      { label: "Database", value: "SQL Server with query optimization" },
-      { label: "Auth", value: "JWT with refresh token rotation" },
-      { label: "CDN", value: "CloudFlare for global asset delivery" },
+      { label: "Frontend", value: "React 18 SPA with TypeScript, React Router v6, Context API for state, custom component library with styled-components" },
+      { label: "Backend", value: "ASP.NET Core 8 Web API with C# — Clean Architecture (Controllers / Services / Repositories / Entities), global exception middleware, Swagger/Swashbuckle docs" },
+      { label: "Database", value: "SQL Server with Entity Framework Core 8 — Code-First migrations, 15+ tables, proper indexes, stored procedures for reporting queries" },
+      { label: "Payments", value: "Stripe Elements (Stripe.js) for card checkout, 3D Secure (SCA), webhook event handlers, refund & dispute management, Stripe Dashboard integration" },
+      { label: "Authentication", value: "JWT Bearer tokens with sliding expiration, refresh token rotation, BCrypt password hashing, role-based authorization (Admin / Staff / Customer)" },
+      { label: "CI/CD Pipeline", value: "Azure DevOps: Git trigger → Build (restore/compile/test/publish) → Deploy Staging → Smoke Tests → Approval Gate → Deploy Production → Azure App Service slots" },
+      { label: "Cloud Infrastructure", value: "Azure App Service (Web Apps), Azure Blob Storage (media), Azure SQL Database, CloudFlare CDN (asset delivery + DDoS protection)" },
+      { label: "Architecture", value: "Repository pattern, dependency injection, AutoMapper for DTOs, FluentValidation, global error handling, CORS policies, rate limiting" },
     ],
   },
   {
@@ -323,48 +338,76 @@ const projectsData = [
   },
   {
     id: 7,
-    slug: "learning-management",
-    title: "Learning Management",
-    category: "EdTech",
-    subcategory: "E-Learning Platform",
+    slug: "aiserwin-lms",
+    title: "AISERWIN LMS — Winfocus Learning Management System",
+    category: "Enterprise EdTech",
+    subcategory: ".NET 10 + Angular 20 Enterprise Platform",
     description:
-      "An end-to-end e-learning platform with course creation, student enrollment, progress tracking, assessments, and role-based access for admins, instructors, and students.",
+      "AISERWIN is a comprehensive, enterprise-grade Learning Management System built for Winfocus — a multinational educational organization operating across 8 countries (UAE, Oman, Saudi Arabia, Kuwait, Qatar, Bahrain, India). The platform unifies the entire educational lifecycle: student registration and fee management, academic content creation, online examinations, teacher administration, and DTP content workflow — all under a single production-deployed system.",
     longDescription:
-      "The platform delivers an immersive learning experience through video lessons, interactive quizzes, live sessions, and peer collaboration. Progress tracking and gamification keep learners motivated throughout their journey.",
-    tech: ["ASP.NET Core", "Angular", "SQL Server", "JWT", "WebRTC"],
-    img: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1600&q=85",
+      "This is a full-stack enterprise-grade application with a .NET 10 backend exposing 40+ REST API endpoints and an Angular 20 frontend delivering a multi-portal experience for six distinct user roles. The system handles real-world complexity: multi-country data scoping, hierarchical academic structures (Country → State → Mode of Study → Centre → Syllabus → Grade → Stream → Course → Subject → Batch), dynamic form building, fee installment workflows, and a full DTP content creation pipeline. I architected and developed the complete application end-to-end — from Clean Architecture backend design and Entity Framework Core data modeling, to Angular 20 Zoneless + Signals frontend with a 7-interceptor HTTP chain, to Azure DevOps CI/CD pipeline setup and production deployment. Every module described below was built, tested, and deployed by me.",
+    tech: [".NET 10", "Angular 20", "SQL Server", "Entity Framework Core", "SignalR", "Azure DevOps", "Azure App Service", "Azure Blob Storage", "Serilog", "JWT", "Argon2", "Swagger"],
+    img: "/projects/aiserwin/A8. Student Dashboard.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1600&q=85",
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1600&q=85",
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600&q=85",
-      "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?w=1600&q=85",
+      "/projects/aiserwin/A8. Student Dashboard.webp",
+      "/projects/aiserwin/A3. Register Sucess Popup.webp",
+      "/projects/aiserwin/A3. Register Sucess Popup_1.webp",
+      "/projects/aiserwin/A4. Register Preview.webp",
+      "/projects/aiserwin/A5.Register Preview - 2.webp",
+      "/projects/aiserwin/D8. Students Exam Time Table- Exam Detail-Start Exam.webp",
+      "/projects/aiserwin/D10. Students Exam Time Table- Exam Detail- Correct Question Paper.webp",
+      "/projects/aiserwin/D11. Students Exam Time Table- Exam Detail- Correct Answers - Descriptive answer.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 102806.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 102817.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 102902.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 102911.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104209.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104218.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104230.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104247.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104337.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104357.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104409.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104425.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104445.webp",
     ],
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    color: "#ec4899",
-    accentColor: "#db2777",
-    year: "2024",
-    domain: "https://lms.example.com",
-    awards: ["EdTech Platform of the Year 2024"],
+    video: "",
+    color: "#3b82f6",
+    accentColor: "#2563eb",
+    year: "2025",
+    domain: "https://aiserwin-api-prod-egeqcfd4f6epf4gg.southindia-01.azurewebsites.net/api/v1",
+    awards: ["Production Deployed — 8 Countries", "Enterprise Clean Architecture", "Azure DevOps CI/CD Pipeline"],
     stats: [
-      { value: 1000, suffix: "+", label: "Students Enrolled" },
-      { value: 50, suffix: "+", label: "Courses Live" },
-      { value: 92, suffix: "%", label: "Completion Rate" },
-      { value: 4.8, suffix: "/5", label: "Average Rating" },
+      { value: 8, suffix: "", label: "Countries Deployed" },
+      { value: 40, suffix: "+", label: "REST API Endpoints" },
+      { value: 60, suffix: "+", label: "Database Entities" },
+      { value: 7, suffix: "", label: "User Roles" },
     ],
     features: [
-      { title: "Multi-Format Content", desc: "Video, SCORM, PDF, live sessions in one platform" },
-      { title: "Live Video Sessions", desc: "WebRTC-powered live classes with recording" },
-      { title: "Automated Assessments", desc: "Adaptive quizzes with instant feedback" },
-      { title: "Certificate Generation", desc: "Auto-generated certificates on completion" },
-      { title: "Progress Dashboards", desc: "Real-time learning analytics for students and admins" },
-      { title: "Gamification System", desc: "Badges, streaks, and leaderboards for engagement" },
+      { title: "Clean Architecture + DDD Backend (.NET 10)", desc: "4-layer Clean Architecture: API (Controllers/Middleware), Application (Services/DTOs/Validators), Domain (Entities/Enums/ValueObjects), Infrastructure (EF Core/Data/Repositories/JWT/Email/FileStorage). Zero domain-layer dependencies. Code-First EF Core migrations, FluentValidation, AutoMapper, Serilog structured logging, and global exception middleware throughout." },
+      { title: "Angular 20 Zoneless + Signals Frontend", desc: "Zoneless change detection eliminates zone.js overhead (~30% faster). Signal-based state management with EntityService<T> and HierarchicalEntityService<T>. 7-interceptor HTTP chain: XSS sanitize → auth (JWT) → LRU cache (300 entries, 75 MB, 5-min TTL, stale-while-revalidate) → deduplication → 3-retry exponential backoff → reference-counted loading spinner → toast error handling." },
+      { title: "Authentication & Security", desc: "JWT Bearer tokens (24h expiry) with IP-based session locking via UserActiveSession table. Argon2 password hashing (memory-hard, GPU/ASIC resistant). Session validation middleware on every API request. Rate limiting on auth endpoints (1 req/min per IP for password flows). Force logout by admins, login audit logging, claims-based authorization (roles + permissions + countryId/centerId scope)." },
+      { title: "Student Registration & Approval Workflow", desc: "Multi-step registration: academic details (8-level cascading dropdowns: Country → State → Mode of Study → Centre → Syllabus → Grade → Stream → Course → Subject → Batch), personal details, document upload with drag-and-drop photo/signature. Registration preview modal (2-page confirmation), then submission → Draft → Submitted → Pending → Approved state machine. Auto user account creation on approval." },
+      { title: "Fee Management & Installments", desc: "Fee plan CRUD per course/subject with customizable discount types (scholarship, seasonal, yearly — stacking supported). Auto installment scheduling (monthly, quarterly). Student fee portal showing payment schedule and remaining balance. Admin payment recording, balance sheet reporting. Discount request workflow: students request → admins review and approve." },
+      { title: "Online Exam Portal", desc: "Full exam lifecycle: admin creates exams with configurable chapters, units, grades, subjects. Students access via exam portal with timer, question navigation, and session management. Exam accounts with individual credentials per student. Teacher exam schedule view. Question types: MCQ with options, descriptive answers. Real-time correct answer reveal post-submission." },
+      { title: "DTP Content Workflow Pipeline", desc: "DTP operator dashboard with task overview, productivity stats, correction rates. Task assignment (admin → DTP operator). Question CRUD with versioning and rich metadata (type, difficulty, topic, grade, subject). Review workflow: submitted → reviewed → approved/rejected. Daily Activity Reports (DAR) submission. Per-operator statistics and correction rate tracking." },
+      { title: "Academic Hierarchy Management", desc: "Complete Winfocus academic structure: Country → State → Mode of Study → Centre → Syllabus → Grade → Stream → Course → Subject → Batch → Batch Timings. Batch timings support 3 independent schedules: MTF (Monday-Tuesday-Friday), Saturday, Sunday — each separately configurable. Full CRUD for all hierarchy levels with relational integrity." },
+      { title: "Multi-Country Multi-Role Portal", desc: "Single SPA with role-based routing — all user types (SuperAdmin, CountryAdmin, CenterAdmin, Staff, Student, Teacher, DTP, Parent) enter through /dashboard and are redirected to their role-specific portal. Shared auth, interceptors, and services. Dynamic navigation menus by role. Page heading metadata per route. 8-country landing page infrastructure with country-specific branding." },
+      { title: "Azure DevOps CI/CD Pipeline", desc: "Full Azure DevOps pipeline: Build (restore, compile, test, publish) → Staging deployment → Smoke tests → Production approval gate → Production deployment. Backend deployed to Azure App Service. Frontend to Azure Static Web Apps (Angular SSR). Database migrations on deploy. Azure Blob Storage for file assets with local fallback. Serilog → Console + Rolling File logging." },
     ],
     techDetails: [
-      { label: "Frontend", value: "Angular 18 with SCORM player integration" },
-      { label: "Backend", value: "ASP.NET Core 8 with Clean Architecture" },
-      { label: "Database", value: "SQL Server with full-text search" },
-      { label: "Video", value: "AWS IVS for live streaming" },
-      { label: "Auth", value: "JWT with role-based claims" },
+      { label: "Backend Framework", value: ".NET 10 / ASP.NET Core Web API with C# (nullable reference types)" },
+      { label: "ORM & Database", value: "Entity Framework Core 10 (Code-First), Microsoft SQL Server, 60+ entities with soft deletes (global EF query filters)" },
+      { label: "Architecture", value: "Clean Architecture + Domain-Driven Design + SOLID principles. 4 layers with zero cross-layer dependencies" },
+      { label: "Authentication", value: "JWT Bearer Tokens, Argon2 hashing (NetDevPack), IP session locking, rate limiting, claims-based RBAC + PBAC" },
+      { label: "API", value: "40+ REST endpoints, Swagger/Swashbuckle docs, API versioning (ASP.NET API Versioning 8.1)" },
+      { label: "Frontend Framework", value: "Angular 20.3 with TypeScript 5.9, provideZonelessChangeDetection" },
+      { label: "State Management", value: "Angular Signals (signal-based reactivity), EntityService<T> with optimistic updates + rollback" },
+      { label: "HTTP Layer", value: "7-interceptor chain: sanitize, auth, cache (LRU 300/75MB/5min), dedupe, retry (3x exp backoff), loading (ref-counted), error" },
+      { label: "Real-Time", value: "SignalR hub for WebSocket notifications, entity change events, real-time push" },
+      { label: "File Storage", value: "Azure Blob Storage (primary) + Local disk fallback, MailKit/SMTP email, Serilog logging" },
+      { label: "Code Quality", value: "StyleCop + Microsoft Code Analysis analyzers, FluentValidation, AutoMapper with custom resolvers" },
+      { label: "Deployment", value: "Azure DevOps CI/CD (Build → Staging → Approval Gate → Production), Azure App Service + Azure Static Web Apps + Azure SQL Database" },
     ],
   },
   {
@@ -416,47 +459,57 @@ const projectsData = [
   {
     id: 9,
     slug: "cartx-ecommerce",
-    title: "CartX E-Commerce",
+    title: "CartX — UAE Grocery Delivery",
     category: "E-Commerce",
-    subcategory: "Scalable Storefront",
+    subcategory: "Multi-Vendor Delivery Platform",
     description:
-      "A high-performance e-commerce application with a blazing-fast shopping experience, advanced cart management, and checkout optimized for maximum conversion across all devices.",
+      "CartX is a comprehensive multi-vendor grocery and restaurant delivery platform targeting the UAE and Gulf market, delivering a seamless shopping experience across supermarkets, pharmacies, restaurants, furniture stores, pet supplies, and fashion — all in one unified app.",
     longDescription:
-      "CartX was built with performance as the primary constraint. Every millisecond of load time was analyzed and optimized. The result is an e-commerce experience that feels instant and delightful.",
-    tech: ["ASP.NET Core", "Angular", "SQL Server", "Redis"],
-    img: "/projects/cyanstore/1.webp",
+      "CartX redefines the Gulf grocery delivery experience by consolidating multiple store categories into a single, beautifully crafted app. Built for both web and mobile, the platform features split-screen login flows, location-based store discovery, real-time promotional banners, store-specific category navigation, product filtering, item customisation with modifiers and add-ons, and a live order total calculator — all wrapped in a distinctive green brand identity consistent across every screen and interaction.",
+    tech: ["React Native", "Node.js", "MongoDB"],
+    img: "/projects/cartx/Preview.webp",
     gallery: [
-      "/projects/cyanstore/1.webp",
-      "/projects/cyanstore/2.webp",
-      "/projects/cyanstore/3 (1).webp",
-      "/projects/cyanstore/3 (2).webp",
+      "/projects/cartx/Login.webp",
+      "/projects/cartx/Home.webp",
+      "/projects/cartx/Home (2).webp",
+      "/projects/cartx/Order Now.webp",
+      "/projects/cartx/Supermarkets.webp",
+      "/projects/cartx/Supermarkets (2).webp",
+      "/projects/cartx/Lulu Hypermarket.webp",
+      "/projects/cartx/Lulu Hypermarket (2).webp",
+      "/projects/cartx/Dairy & Ice Creams.webp",
+      "/projects/cartx/Dairy & Ice Creams (2).webp",
+      "/projects/cartx/Restaurants.webp",
+      "/projects/cartx/Restaurants (2).webp",
     ],
-    video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    color: "#14b8a6",
-    accentColor: "#0d9488",
-    year: "2023",
-    domain: "https://cartx.example.com",
-    awards: ["Best Performance E-Commerce"],
+    video: "/projects/cartx/cartx.webm",
+    color: "#22C55E",
+    accentColor: "#16a34a",
+    year: "2024",
+    domain: "",
+    awards: [],
     stats: [
-      { value: 50, suffix: "ms", label: "Page Load Time" },
-      { value: 99, suffix: "%", label: "Checkout Success" },
-      { value: 10, suffix: "K+", label: "Products Listed" },
-      { value: 3, suffix: "x", label: "SEO Traffic Growth" },
+      { value: 8, suffix: "+", label: "Store Categories" },
+      { value: 50, suffix: "K+", label: "Products Listed" },
+      { value: 99, suffix: "%", label: "Order Accuracy" },
+      { value: 2, suffix: "x", label: "Platforms Covered" },
     ],
     features: [
-      { title: "Lazy-Loaded Catalog", desc: "Infinite scroll with instant filtering" },
-      { title: "Cart Persistence", desc: "Sessions saved across devices and browsers" },
-      { title: "Inventory Alerts", desc: "Low-stock notifications with auto-reorder" },
-      { title: "Multi-Vendor Support", desc: "Marketplace-ready with seller dashboards" },
-      { title: "Abandoned Cart Recovery", desc: "Automated email sequences for cart abandonment" },
-      { title: "Optimized Search", desc: "Sub-100ms search with typo tolerance" },
+      { title: "Multi-Category Marketplace", desc: "Supermarkets, restaurants, pharmacies, furniture, pet supplies, and fashion — all under one roof" },
+      { title: "Dual-Platform Design", desc: "Responsive web layouts and native mobile screens, both delivering the full CartX experience" },
+      { title: "Split-Screen Login Flow", desc: "Elegant split-layout login with email, Google, and Facebook authentication with remember me" },
+      { title: "Promotional Banners", desc: "Location-aware promotional carousel showcasing deals like 50% off pizzas and seasonal offers" },
+      { title: "Smart Store Discovery", desc: "Category circles, top deals sections, nearby stores, and quick-filter chips for fast navigation" },
+      { title: "Item Customisation Engine", desc: "Size, drink, sauce, and add-on modifiers with a running total calculator and sticky CTA" },
+      { title: "Store & Product Catalog", desc: "Store pages with category grids, product listings with weight/volume, AED pricing, and discount badges" },
+      { title: "Ratings & Social Proof", desc: "Star ratings with review counts displayed on store cards for informed purchasing decisions" },
     ],
     techDetails: [
-      { label: "Frontend", value: "Angular 18 with SSR" },
-      { label: "Backend", value: "ASP.NET Core 8 with response caching" },
-      { label: "Database", value: "SQL Server with query optimization" },
-      { label: "Cache", value: "Redis for session and page caching" },
-      { label: "CDN", value: "Azure CDN for global delivery" },
+      { label: "Frontend", value: "React Native for iOS & Android with responsive web builds" },
+      { label: "Backend", value: "Node.js with Express API and real-time WebSocket support" },
+      { label: "Database", value: "MongoDB for flexible product, vendor, and order schema" },
+      { label: "Auth", value: "JWT-based authentication with Google and Facebook OAuth" },
+      { label: "Design System", value: "Consistent green (#22C55E) brand system across all screens" },
     ],
   },
   {
@@ -762,6 +815,14 @@ export default function ProjectDetail() {
   const pageRef = useRef(null);
   const heroRef = useRef(null);
   const heroBgRef = useRef(null);
+  const statsRef = useRef(null);
+  const galleryGridRef = useRef(null);
+  const featuresGridRef = useRef(null);
+  const techDetailsRef = useRef(null);
+  const awardsRef = useRef(null);
+  const relatedRef = useRef(null);
+  const tabsSectionRef = useRef(null);
+  const gallerySectionRef = useRef(null);
   const [activeGalleryIdx, setActiveGalleryIdx] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -798,7 +859,6 @@ export default function ProjectDetail() {
   // Scroll animations
   useEffect(() => {
     window.scrollTo(0, 0);
-    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       // Hero entrance
@@ -807,66 +867,66 @@ export default function ProjectDetail() {
       gsap.fromTo(".pd-hero-meta", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: "power3.out", delay: 0.35 });
       gsap.fromTo(".pd-hero-cta", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", delay: 0.5 });
 
-      // Stats
-      gsap.fromTo(".pd-stat-item", { opacity: 0, y: 30 }, {
-        opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out",
-        scrollTrigger: { trigger: ".pd-stats-section", start: "top 80%" },
-      });
-
-      // Section headers
-      gsap.utils.toArray(".pd-section-header").forEach((el) => {
-        gsap.fromTo(el, { opacity: 0, y: 20 }, {
-          opacity: 1, y: 0, duration: 0.7, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 85%" },
+      // Stats — batched
+      if (statsRef.current) {
+        ScrollTrigger.batch(statsRef.current.querySelectorAll(".pd-stat-item"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" }),
+          start: "top 80%",
         });
-      });
+      }
 
-      // Gallery items
-      gsap.fromTo(".pd-gallery-item", { opacity: 0, scale: 0.9 }, {
-        opacity: 1, scale: 1, duration: 0.6, stagger: 0.08, ease: "power3.out",
-        scrollTrigger: { trigger: ".pd-gallery-grid", start: "top 80%" },
-      });
+      // Gallery items — batched
+      if (galleryGridRef.current) {
+        ScrollTrigger.batch(galleryGridRef.current.querySelectorAll(".pd-gallery-item"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.6, stagger: 0.08, ease: "power3.out" }),
+          start: "top 80%",
+        });
+      }
 
-      // Feature cards
-      gsap.fromTo(".pd-feature-card", { opacity: 0, y: 30 }, {
-        opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out",
-        scrollTrigger: { trigger: ".pd-features-grid", start: "top 80%" },
-      });
+      // Feature cards — batched
+      if (featuresGridRef.current) {
+        ScrollTrigger.batch(featuresGridRef.current.querySelectorAll(".pd-feature-card"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out" }),
+          start: "top 80%",
+        });
+      }
 
-      // Tech cards
-      gsap.fromTo(".pd-tech-detail-item", { opacity: 0, x: -20 }, {
-        opacity: 1, x: 0, duration: 0.5, stagger: 0.08, ease: "power3.out",
-        scrollTrigger: { trigger: ".pd-tech-details", start: "top 80%" },
-      });
+      // Tech cards — batched
+      if (techDetailsRef.current) {
+        ScrollTrigger.batch(techDetailsRef.current.querySelectorAll(".pd-tech-detail-item"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, stagger: 0.08, ease: "power3.out" }),
+          start: "top 80%",
+        });
+      }
 
-      // Awards
-      gsap.fromTo(".pd-award-item", { opacity: 0, scale: 0.8 }, {
-        opacity: 1, scale: 1, duration: 0.5, stagger: 0.12, ease: "back.out(1.5)",
-        scrollTrigger: { trigger: ".pd-awards", start: "top 85%" },
-      });
+      // Awards — batched
+      if (awardsRef.current) {
+        ScrollTrigger.batch(awardsRef.current.querySelectorAll(".pd-award-item"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, stagger: 0.12, ease: "back.out(1.5)" }),
+          start: "top 85%",
+        });
+      }
 
-      // Related cards
-      gsap.fromTo(".pd-related-card", { opacity: 0, y: 40 }, {
-        opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power3.out",
-        scrollTrigger: { trigger: ".pd-related", start: "top 80%" },
-      });
-
-      // Parallax on hero background
-      gsap.to(heroBgRef.current, {
-        yPercent: 25,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-        },
-      });
+      // Related cards — batched
+      if (relatedRef.current) {
+        ScrollTrigger.batch(relatedRef.current.querySelectorAll(".pd-related-card"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: "power3.out" }),
+          start: "top 80%",
+        });
+      }
 
       // Tab content
-      gsap.fromTo(".pd-tab-content", { opacity: 0, y: 15 }, {
-        opacity: 1, y: 0, duration: 0.5, ease: "power2.out",
-        scrollTrigger: { trigger: ".pd-tabs-section", start: "top 80%" },
+      if (tabsSectionRef.current) {
+        ScrollTrigger.batch(tabsSectionRef.current.querySelectorAll(".pd-tab-content"), {
+          onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }),
+          start: "top 80%",
+        });
+      }
+
+      // Section headers — batched via ScrollTrigger.batch on all section headers
+      ScrollTrigger.batch(".pd-section-header", {
+        onEnter: (els) => gsap.fromTo(els, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }),
+        start: "top 85%",
       });
     }, pageRef);
 
@@ -875,45 +935,47 @@ export default function ProjectDetail() {
 
   // Count-up animation for stats
   useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const numEls = entry.target.querySelectorAll(".pd-stat-value[data-value]");
-          numEls.forEach((el) => {
-            const target = parseFloat(el.dataset.value);
+          const numEls = el.querySelectorAll(".pd-stat-value[data-value]");
+          numEls.forEach((statEl) => {
+            const target = parseFloat(statEl.dataset.value);
+            if (isNaN(target)) return;
             const isDecimal = target % 1 !== 0;
-            gsap.fromTo(
-              { val: 0 },
-              { val: target, duration: 1.5, ease: "power2.out" },
-              {
-                val: target,
-                duration: 1.5,
-                ease: "power2.out",
-                onUpdate: function () {
-                  el.textContent = isDecimal
-                    ? this.targets()[0].val.toFixed(1)
-                    : Math.round(this.targets()[0].val);
-                },
-              }
-            );
+            const proxy = { val: 0 };
+            gsap.to(proxy, {
+              val: target,
+              duration: 1.5,
+              ease: "power2.out",
+              onUpdate: () => {
+                // Extract suffix from existing text (e.g. "0%" -> "%")
+                const existingText = statEl.textContent;
+                const suffix = existingText.replace(/^[0-9.\-]+/, "");
+                statEl.textContent = isDecimal
+                  ? proxy.val.toFixed(1) + suffix
+                  : Math.round(proxy.val) + suffix;
+              },
+            });
           });
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.3 });
 
-    const statsSection = document.querySelector(".pd-stats-section");
-    if (statsSection) observer.observe(statsSection);
-
+    observer.observe(el);
     return () => observer.disconnect();
   }, [slug]);
 
   const goToGallery = (idx) => {
     setActiveGalleryIdx(idx);
-    const modal = document.querySelector(".pd-lightbox");
-    if (modal) {
-      gsap.fromTo(".pd-lightbox-img", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" });
-    }
+    setTimeout(() => {
+      const img = document.querySelector(".pd-lightbox-img");
+      if (img) gsap.fromTo(img, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" });
+    }, 0);
   };
 
   return (
@@ -967,7 +1029,7 @@ export default function ProjectDetail() {
               <ExternalLink />
             </a>
             <button className="pd-btn-ghost" onClick={() => {
-              document.querySelector(".pd-gallery-section")?.scrollIntoView({ behavior: "smooth" });
+              gallerySectionRef.current?.scrollIntoView({ behavior: "smooth" });
             }}>
               <span>View Gallery</span>
               <ChevronDown />
@@ -983,7 +1045,7 @@ export default function ProjectDetail() {
       </section>
 
       {/* ── STATS ── */}
-      <section className="pd-stats-section">
+      <section className="pd-stats-section" ref={statsRef}>
         <div className="section-container">
           <div className="pd-stats-grid">
             {project.stats.map((stat, i) => (
@@ -1071,7 +1133,7 @@ export default function ProjectDetail() {
       </section>
 
       {/* ── IMAGE GALLERY ── */}
-      <section className="pd-gallery-section pd-section">
+      <section className="pd-gallery-section pd-section" ref={gallerySectionRef}>
         <div className="section-container">
           <div className="pd-section-header pd-section-header">
             <div className="pd-section-label">
@@ -1108,7 +1170,7 @@ export default function ProjectDetail() {
           </div>
 
           {/* Thumbnails */}
-          <div className="pd-gallery-grid">
+          <div className="pd-gallery-grid" ref={galleryGridRef}>
             {project.gallery.map((img, i) => (
               <button
                 key={i}
@@ -1208,7 +1270,7 @@ export default function ProjectDetail() {
       </section>
 
       {/* ── TABS: Features / Tech Details ── */}
-      <section className="pd-tabs-section pd-section">
+      <section className="pd-tabs-section pd-section" ref={tabsSectionRef}>
         <div className="section-container">
           <div className="pd-tabs">
             <button
@@ -1229,7 +1291,7 @@ export default function ProjectDetail() {
 
           <div className="pd-tab-content" key={activeTab}>
             {activeTab === "overview" && (
-              <div className="pd-features-grid">
+              <div className="pd-features-grid" ref={featuresGridRef}>
                 {project.features.map((feature, i) => (
                   <div key={i} className="pd-feature-card" style={{ borderColor: `${project.color}20` }}>
                     <div className="pd-feature-icon" style={{ background: `${project.color}15`, border: `1px solid ${project.color}30` }}>
@@ -1245,7 +1307,7 @@ export default function ProjectDetail() {
             )}
 
             {activeTab === "tech" && (
-              <div className="pd-tech-details">
+              <div className="pd-tech-details" ref={techDetailsRef}>
                 {project.techDetails.map((detail, i) => (
                   <div key={i} className="pd-tech-detail-item">
                     <span className="pd-tech-detail-label" style={{ color: project.color }}>{detail.label}</span>
@@ -1261,7 +1323,7 @@ export default function ProjectDetail() {
 
       {/* ── AWARDS ── */}
       {project.awards && project.awards.length > 0 && (
-        <section className="pd-awards-section pd-section">
+        <section className="pd-awards-section pd-section" ref={awardsRef}>
           <div className="section-container">
             <div className="pd-awards pd-section-header">
               <div className="pd-section-label">
@@ -1285,7 +1347,7 @@ export default function ProjectDetail() {
       )}
 
       {/* ── RELATED PROJECTS ── */}
-      <section className="pd-related pd-section">
+      <section className="pd-related pd-section" ref={relatedRef}>
         <div className="section-container">
           <div className="pd-section-header">
             <div className="pd-section-label">

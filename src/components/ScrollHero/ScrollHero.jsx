@@ -52,7 +52,6 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
   const greetingOverlayBgRef = useRef(null);
 
   const imagesRef = useRef([]);
-  const rafRef = useRef(null);
 
   // Preload frames progressively — first batch immediately, rest in background
   useEffect(() => {
@@ -217,55 +216,53 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
     return () => ctx.revert();
   }, [greetingDone, setGreetingDone]);
 
-  // Frame scrubbing
-  const updateFrame = useCallback(() => {
-    if (!imagesRef.current.length) return;
-    const container = containerRef.current;
-    if (!container) return;
-
-    const rect = container.getBoundingClientRect();
-    const scrollableDistance = container.offsetHeight - window.innerHeight;
-    const progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
-
-    const frame = Math.floor(progress * (TOTAL_FRAMES - 1));
-    if (imgRef.current) imgRef.current.src = imagesRef.current[frame].src;
-    if (frameDisplayRef.current) {
-      frameDisplayRef.current.textContent =
-        `${String(frame + 1).padStart(3, '0')} / ${TOTAL_FRAMES}`;
-    }
-  }, []);
-
-  const onScroll = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(updateFrame);
-  }, [updateFrame]);
-
+  // Frame scrubbing via ScrollTrigger scrub — smooth on all devices
   useEffect(() => {
     if (!ready) return;
     const container = containerRef.current;
-    if (!container) return;
+    const img = imgRef.current;
+    const counter = frameDisplayRef.current;
+    if (!container || !img) return;
 
-    imgRef.current.src = imagesRef.current[0].src;
+    img.src = imagesRef.current[0].src;
 
-    // Use Lenis scroll event instead of native window scroll
-    const lenis = window.__LENIS__;
-    if (lenis) {
-      lenis.on('scroll', onScroll);
-      updateFrame();
-      return () => {
-        lenis.off('scroll', onScroll);
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      };
-    } else {
-      // Fallback to native scroll for non-Lenis environments
-      window.addEventListener('scroll', onScroll, { passive: true });
-      updateFrame();
-      return () => {
-        window.removeEventListener('scroll', onScroll);
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      };
-    }
-  }, [ready, onScroll, updateFrame]);
+    let st = null;
+
+    const setupTrigger = () => {
+      if (st) {
+        st.kill();
+        st = null;
+      }
+
+      st = ScrollTrigger.create({
+        trigger: container,
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.8,
+        onUpdate: (self) => {
+          const frame = Math.floor(self.progress * (TOTAL_FRAMES - 1));
+          img.src = imagesRef.current[frame].src;
+          if (counter) {
+            counter.textContent = `${String(frame + 1).padStart(3, '0')} / ${TOTAL_FRAMES}`;
+          }
+        },
+      });
+    };
+
+    setupTrigger();
+
+    // Recalculate on resize (handles mobile address bar show/hide)
+    const onResize = () => {
+      ScrollTrigger.refresh();
+      setupTrigger();
+    };
+    window.addEventListener('resize', onResize);
+
+    return () => {
+      if (st) st.kill();
+      window.removeEventListener('resize', onResize);
+    };
+  }, [ready]);
 
   // Cinematic text reveal animation
   useEffect(() => {

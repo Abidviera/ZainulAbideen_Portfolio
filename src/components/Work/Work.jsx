@@ -91,6 +91,18 @@ const PostItNote = ({ text, color = "#FFE066" }) => (
   </div>
 );
 
+// ── Throttle helper ──────────────────────────────────────────
+function rafThrottle(fn) {
+  let rafId = null;
+  return function (...args) {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(() => {
+      fn.apply(this, args);
+      rafId = null;
+    });
+  };
+}
+
 // ── Polaroid Card ────────────────────────────────────────────
 const PolaroidCard = ({ project, index, onOpen, cardRef }) => {
   const innerRef = useRef(null);
@@ -101,20 +113,23 @@ const PolaroidCard = ({ project, index, onOpen, cardRef }) => {
   useEffect(() => {
     const el = innerRef.current;
     if (!el) return;
-    const handleMouseMove = (e) => {
+
+    // Use quickTo for faster GSAP property updates (avoids tween object creation each frame)
+    const quickX = gsap.quickTo(el, "rotateY", { duration: 0.5, ease: "power2.out" });
+    const quickY = gsap.quickTo(el, "rotateX", { duration: 0.5, ease: "power2.out" });
+    const quickScale = gsap.quickTo(el, "scale", { duration: 0.5, ease: "power2.out" });
+
+    const handleMouseMove = rafThrottle((e) => {
       const rect = el.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       const dx = (e.clientX - cx) / (window.innerWidth / 2);
       const dy = (e.clientY - cy) / (window.innerHeight / 2);
-      gsap.to(el, {
-        rotateY: dx * 12,
-        rotateX: -dy * 8,
-        scale: 1.06,
-        duration: 0.5,
-        ease: "power2.out",
-      });
-    };
+      quickX(dx * 12);
+      quickY(-dy * 8);
+      quickScale(1.06);
+    });
+
     const handleMouseLeave = () => {
       gsap.to(el, {
         rotateY: rot,
@@ -210,17 +225,13 @@ const MagazineCard = ({ project, onOpen }) => {
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
-    const handleMouseMove = (e) => {
+    const handleMouseMove = rafThrottle((e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      gsap.to(card, {
-        "--mx": `${x}px`,
-        "--my": `${y}px`,
-        duration: 0.3,
-        ease: "power2.out",
-      });
-    };
+      card.style.setProperty("--mx", `${x}px`);
+      card.style.setProperty("--my", `${y}px`);
+    });
     card.addEventListener("mousemove", handleMouseMove);
     return () => card.removeEventListener("mousemove", handleMouseMove);
   }, []);
@@ -303,95 +314,106 @@ const FALLBACK_IMG =
 const projects = [
   {
     id: 1,
-    slug: "self-food-ordering-kiosk",
-    title: "Self Food Ordering Kiosk",
-    category: "Self-Service",
+    slug: "caad-erp-solution",
+    title: "CAAD ERP Solution",
+    category: "Enterprise ERP",
     description:
-      "Self-service food ordering system allowing customers to browse menus, customize orders, and complete transactions without staff intervention. Built with responsive UI and real-time order management.",
-    tech: ["NestJS", "Angular", "MongoDB"],
-    img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80",
+      "Comprehensive ERP platform integrating inventory, billing, CRM, and reporting modules. Designed for enterprise scalability and real-time data handling, improving operational efficiency across departments.",
+    tech: ["NestJS", "Angular 18", "MongoDB"],
+    img: "/projects/caaderp/image1.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=85",
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=85",
-      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=85",
+      "/projects/caaderp/image1.webp",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
+      "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=85",
     ],
-    color: "#ef4444",
-    year: "2024",
+    color: "#FF4F00",
+    year: "2025",
     stats: [
-      { value: 15, suffix: "%", label: "Avg Order Value" },
-      { value: 30, suffix: "s", label: "Order Time" },
-      { value: 98, suffix: "%", label: "Order Accuracy" },
+      { value: 98, suffix: "%", label: "Efficiency Gain" },
+      { value: 4, suffix: "x", label: "Faster Processing" },
+      { value: 50, suffix: "+", label: "Enterprise Users" },
     ],
     features: [
-      "Touch-optimized UI",
-      "Customizable combos",
-      "Dietary filter system",
-      "Kitchen display integration",
-      "Multi-language support",
-      "Real-time kitchen queue",
+      "Real-time inventory synchronization",
+      "Multi-branch management",
+      "Advanced reporting & analytics",
+      "Role-based access control",
+      "Custom billing workflows",
+      "API-driven integrations",
     ],
   },
-
+  
   {
     id: 2,
     slug: "melizzo-ecommerce",
     title: "Melizzo E-Commerce",
     category: "E-Commerce",
     description:
-      "Full-featured e-commerce software platform with a React frontend and ASP.NET Core backend. Supports product listings, shopping cart, order management, secure payment processing.",
-    tech: ["React", "ASP.NET Core", "SQL Server", "JWT"],
-    img: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80",
+      "Production-deployed full-stack e-commerce platform for Melizzo — a multi-category online retail business. I architected and built the complete system end-to-end: React SPA storefront, ASP.NET Core Web API, SQL Server database, Stripe payment integration, and Azure DevOps CI/CD pipeline. The platform handles product catalogs, cart management, order lifecycle, admin dashboard, and real-time analytics with 99.9% uptime.",
+    tech: ["React 18", "ASP.NET Core 8", "SQL Server", "Entity Framework Core", "Stripe", "Azure DevOps", "Azure App Service", "Azure Blob Storage", "JWT", "CloudFlare CDN"],
+    img: "/projects/melizzo/Screenshot 2026-04-21 121006.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=85",
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=85",
-      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=85",
+      "/projects/melizzo/Screenshot 2026-04-21 121006.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121025.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121039.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121103.webp",
+      "/projects/melizzo/Screenshot 2026-04-21 121123.webp",
     ],
     color: "#6366f1",
     year: "2025",
     stats: [
       { value: 99, suffix: "%", label: "Uptime SLA" },
+      { value: 4, suffix: "K+", label: "Products" },
       { value: 3, suffix: "x", label: "Conversion Rate" },
       { value: 25, suffix: "ms", label: "Avg Load Time" },
     ],
     features: [
-      "Product catalog management",
-      "Secure payment gateway integration",
-      "Shopping cart & wishlist",
-      "Order tracking & history",
-      "Customer reviews & ratings",
-      "Discount & coupon engine",
+      "Full-stack ownership: React SPA + ASP.NET Core Web API + SQL Server",
+      "Stripe payment gateway with 3D Secure, refund & dispute handling",
+      "Admin dashboard with product, order, customer, and coupon management",
+      "Azure DevOps CI/CD pipeline: Build → Staging → Production gate → Deploy",
+      "Azure Blob Storage for media assets + CloudFlare CDN for global delivery",
+      "JWT authentication with refresh token rotation and role-based access",
     ],
   },
-  {
+   {
     id: 3,
-    slug: "sales-app",
-    title: "Sales App",
-    category: "Sales Management",
+    slug: "aiserwin-lms",
+    title: "AISERWIN LMS — Winfocus",
+    category: "Enterprise EdTech",
     description:
-      "Dynamic sales management application for sales representatives and administrators. Enables creating, updating, and managing customer orders, handling returns, and tracking daily sales with reporting and performance analytics.",
-    tech: ["NestJS", "Angular", "MongoDB"],
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+      "Enterprise-grade Learning Management System for Winfocus — a multinational educational organization operating across 8 countries. A full-stack .NET 10 + Angular 20 application with 40+ API endpoints, 60+ database entities, 7 user roles, and complete Azure DevOps CI/CD deployment pipeline.",
+    tech: [".NET 10", "Angular 20", "SQL Server", "Azure DevOps"],
+    img: "/projects/aiserwin/Screenshot 2026-04-21 102806.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=85",
-      "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=85",
+      "/projects/aiserwin/A8. Student Dashboard.webp",
+      "/projects/aiserwin/A3. Register Sucess Popup.webp",
+      "/projects/aiserwin/A4. Register Preview.webp",
+      "/projects/aiserwin/A5.Register Preview - 2.webp",
+      "/projects/aiserwin/D8. Students Exam Time Table- Exam Detail-Start Exam.webp",
+      "/projects/aiserwin/D10. Students Exam Time Table- Exam Detail- Correct Question Paper.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104209.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 104425.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 102806.webp",
+      "/projects/aiserwin/Screenshot 2026-04-21 102911.webp",
     ],
-    color: "#f97316",
-    year: "2024",
+    color: "#3b82f6",
+    year: "2025",
     stats: [
-      { value: 35, suffix: "%", label: "Revenue Growth" },
-      { value: 2, suffix: "x", label: "Sales Velocity" },
-      { value: 100, suffix: "%", label: "Territory Coverage" },
+      { value: 8, suffix: "", label: "Countries" },
+      { value: 40, suffix: "+", label: "API Endpoints" },
+      { value: 60, suffix: "+", label: "DB Entities" },
     ],
     features: [
-      "Route-optimized visit planning",
-      "Real-time GPS tracking",
-      "Instant quote generation",
-      "Sales pipeline dashboard",
-      "Return & refund handling",
-      "Performance leaderboards",
+      "Clean Architecture + DDD (.NET 10 backend)",
+      "Angular 20 Zoneless + Signals frontend",
+      "Multi-country multi-role portal (7 roles)",
+      "Student registration with approval workflow",
+      "Online exam portal with timer & navigation",
+      "Azure DevOps CI/CD full pipeline",
     ],
   },
+ 
   {
     id: 4,
     slug: "expense-tracker",
@@ -425,34 +447,36 @@ const projects = [
   },
   {
     id: 5,
-    slug: "caad-erp-solution",
-    title: "CAAD ERP Solution",
-    category: "Enterprise ERP",
+    slug: "self-food-ordering-kiosk",
+    title: "Self Food Ordering Kiosk",
+    category: "Self-Service",
     description:
-      "Comprehensive ERP platform integrating inventory, billing, CRM, and reporting modules. Designed for enterprise scalability and real-time data handling, improving operational efficiency across departments.",
-    tech: ["NestJS", "Angular 18", "MongoDB"],
-    img: "/projects/caaderp/image1.webp",
+      "Self-service food ordering system allowing customers to browse menus, customize orders, and complete transactions without staff intervention. Built with responsive UI and real-time order management.",
+    tech: ["NestJS", "Angular", "MongoDB"],
+    img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&q=80",
     gallery: [
-      "/projects/caaderp/image1.webp",
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
-      "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=85",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1200&q=85",
+      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=85",
+      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=85",
     ],
-    color: "#FF4F00",
-    year: "2025",
+    color: "#ef4444",
+    year: "2024",
     stats: [
-      { value: 98, suffix: "%", label: "Efficiency Gain" },
-      { value: 4, suffix: "x", label: "Faster Processing" },
-      { value: 50, suffix: "+", label: "Enterprise Users" },
+      { value: 15, suffix: "%", label: "Avg Order Value" },
+      { value: 30, suffix: "s", label: "Order Time" },
+      { value: 98, suffix: "%", label: "Order Accuracy" },
     ],
     features: [
-      "Real-time inventory synchronization",
-      "Multi-branch management",
-      "Advanced reporting & analytics",
-      "Role-based access control",
-      "Custom billing workflows",
-      "API-driven integrations",
+      "Touch-optimized UI",
+      "Customizable combos",
+      "Dietary filter system",
+      "Kitchen display integration",
+      "Multi-language support",
+      "Real-time kitchen queue",
     ],
   },
+
+  
   {
     id: 6,
     slug: "al-bayan-businessmen",
@@ -483,36 +507,37 @@ const projects = [
       "Referral tracking engine",
     ],
   },
-  {
+   {
     id: 7,
-    slug: "learning-management",
-    title: "Learning Management",
-    category: "EdTech",
+    slug: "sales-app",
+    title: "Sales App",
+    category: "Sales Management",
     description:
-      "End-to-end e-learning platform with course creation, student enrollment, progress tracking, assessments, and role-based access for admins, instructors, and students.",
-    tech: ["ASP.NET Core", "Angular", "SQL Server", "JWT"],
-    img: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=800&q=80",
+      "Dynamic sales management application for sales representatives and administrators. Enables creating, updating, and managing customer orders, handling returns, and tracking daily sales with reporting and performance analytics.",
+    tech: ["NestJS", "Angular", "MongoDB"],
+    img: "/projects/salesApp/salesApp.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&q=85",
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1200&q=85",
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=85",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=85",
+      "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=85",
     ],
-    color: "#ec4899",
+    color: "#f97316",
     year: "2024",
     stats: [
-      { value: 1000, suffix: "+", label: "Students Enrolled" },
-      { value: 50, suffix: "+", label: "Courses Live" },
-      { value: 92, suffix: "%", label: "Completion Rate" },
+      { value: 35, suffix: "%", label: "Revenue Growth" },
+      { value: 2, suffix: "x", label: "Sales Velocity" },
+      { value: 100, suffix: "%", label: "Territory Coverage" },
     ],
     features: [
-      "Multi-format course content",
-      "Live video sessions",
-      "Automated assessments",
-      "Certificate generation",
-      "Progress dashboards",
-      "Gamification system",
+      "Route-optimized visit planning",
+      "Real-time GPS tracking",
+      "Instant quote generation",
+      "Sales pipeline dashboard",
+      "Return & refund handling",
+      "Performance leaderboards",
     ],
   },
+ 
   {
     id: 8,
     slug: "mark-media-platform",
@@ -547,32 +572,36 @@ const projects = [
   {
     id: 9,
     slug: "cartx-ecommerce",
-    title: "CartX E-Commerce",
+    title: "CartX — UAE Grocery Delivery",
     category: "E-Commerce",
     description:
-      "Scalable e-commerce application with shopping cart, order management, and secure checkout, focusing on UI responsiveness and backend performance across all devices.",
-    tech: ["ASP.NET Core", "Angular", "SQL Server"],
-    img: "/projects/cyanstore/1.webp",
+      "CartX is a multi-vendor grocery and restaurant delivery platform for the UAE market, enabling users to shop from supermarkets, pharmacies, restaurants, furniture stores, and more — all in one app with real-time order tracking.",
+    tech: ["React Native", "Node.js", "MongoDB"],
+    img: "/projects/cartx/Preview.webp",
     gallery: [
-      "/projects/cyanstore/1.webp",
-      "/projects/cyanstore/2.webp",
-      "/projects/cyanstore/3 (1).webp",
-      "/projects/cyanstore/3 (2).webp",
+      "/projects/cartx/Preview.webp",
+      "/projects/cartx/Login.webp",
+      "/projects/cartx/Home.webp",
+      "/projects/cartx/Order Now.webp",
+      "/projects/cartx/Supermarkets.webp",
+      "/projects/cartx/Lulu Hypermarket.webp",
+      "/projects/cartx/Dairy & Ice Creams.webp",
+      "/projects/cartx/Restaurants.webp",
     ],
-    color: "#14b8a6",
-    year: "2023",
+    color: "#22C55E",
+    year: "2024",
     stats: [
-      { value: 50, suffix: "ms", label: "Page Load" },
-      { value: 99, suffix: "%", label: "Checkout Success" },
-      { value: 10, suffix: "K+", label: "Products Listed" },
+      { value: 8, suffix: "+", label: "Store Categories" },
+      { value: 50, suffix: "K+", label: "Products Listed" },
+      { value: 99, suffix: "%", label: "Order Accuracy" },
     ],
     features: [
-      "Lazy-loaded product catalog",
-      "Cart persistence across sessions",
-      "Inventory alert system",
-      "Multi-vendor support",
-      "Abandoned cart recovery",
-      "Performance-optimized search",
+      "Multi-vendor marketplace (supermarkets, restaurants, pharmacies, furniture)",
+      "Real-time delivery tracking with live map",
+      "Item customisation with size, add-ons, and modifiers",
+      "Smart product search with category filtering",
+      "Web + Mobile responsive design (dual-platform screens)",
+      "Store ratings, discount badges, and promotional banners",
     ],
   },
   {
@@ -746,84 +775,54 @@ export default function Work() {
         },
       );
 
-      // Scrapbook background parallax
-      gsap.to(".fw-scrapbook-grid", {
-        y: -30,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".fw-scrapbook-grid",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 2,
+      // Scrapbook grid — removed (was causing scroll jank, minimal visual gain)
+      // Polaroid cards — batched for performance
+      ScrollTrigger.batch(polaroidRefs.current.filter(Boolean), {
+        onEnter: (elements) => {
+          gsap.fromTo(
+            elements,
+            { opacity: 0, scale: 0.6, y: 60 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "back.out(1.8)", stagger: 0.1 }
+          );
         },
+        start: "top 88%",
       });
 
-      // Polaroid cards stagger — enhanced with rotation
-      polaroidRefs.current.forEach((card, i) => {
-        if (!card) return;
-        gsap.fromTo(
-          card,
-          { opacity: 0, scale: 0.6, rotate: 0, y: 60 },
-          {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "back.out(1.8)",
-            scrollTrigger: { trigger: card, start: "top 90%" },
-            delay: i * 0.1,
-          },
-        );
+      // Magazine cards — batched
+      ScrollTrigger.batch(magazineRefs.current.filter(Boolean), {
+        onEnter: (elements) => {
+          gsap.fromTo(
+            elements,
+            { opacity: 0, y: 80, scale: 0.9, clipPath: "inset(100% 0 0 0)" },
+            { opacity: 1, y: 0, scale: 1, clipPath: "inset(0% 0 0 0)", duration: 0.8, ease: "power4.out", stagger: 0.12 }
+          );
+        },
+        start: "top 88%",
       });
 
-      // Magazine cards — enhanced with scale and depth
-      magazineRefs.current.forEach((card, i) => {
-        if (!card) return;
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 80, scale: 0.9, clipPath: "inset(100% 0 0 0)" },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            clipPath: "inset(0% 0 0 0)",
-            duration: 1,
-            ease: "power4.out",
-            scrollTrigger: { trigger: card, start: "top 88%" },
-            delay: i * 0.12,
-          },
-        );
+      // Post-it notes — batched
+      ScrollTrigger.batch(".postit-note", {
+        onEnter: (elements) => {
+          gsap.fromTo(
+            elements,
+            { opacity: 0, scale: 0, rotate: -15 },
+            { opacity: 1, scale: 1, rotate: 0, duration: 0.5, ease: "back.out(2.5)", stagger: 0.08 }
+          );
+        },
+        start: "top 90%",
       });
 
-      // Post-it notes — spring bounce
-      gsap.fromTo(
-        ".postit-note",
-        { opacity: 0, scale: 0, rotate: -15 },
-        {
-          opacity: 1,
-          scale: 1,
-          rotate: 0,
-          duration: 0.5,
-          ease: "back.out(2.5)",
-          stagger: 0.08,
-          scrollTrigger: { trigger: ".postit-note", start: "top 92%" },
+      // Stamp marks — batched
+      ScrollTrigger.batch(".stamp-mark", {
+        onEnter: (elements) => {
+          gsap.fromTo(
+            elements,
+            { opacity: 0, scale: 2.5, rotate: 25 },
+            { opacity: 1, scale: 1, rotate: 0, duration: 0.5, ease: "back.out(3)", stagger: 0.08 }
+          );
         },
-      );
-
-      // Stamp marks — dramatic spin
-      gsap.fromTo(
-        ".stamp-mark",
-        { opacity: 0, scale: 2.5, rotate: 25 },
-        {
-          opacity: 1,
-          scale: 1,
-          rotate: 0,
-          duration: 0.5,
-          ease: "back.out(3)",
-          stagger: 0.08,
-          scrollTrigger: { trigger: ".stamp-mark", start: "top 90%" },
-        },
-      );
+        start: "top 90%",
+      });
 
       // Magazine header line — draw
       gsap.fromTo(

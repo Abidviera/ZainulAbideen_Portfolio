@@ -8,6 +8,8 @@
   position: relative;
   overflow: hidden;
   background: var(--bg);
+  /* Promote to its own compositing layer */
+  isolation: isolate;
 }
 
 .work-section::before {
@@ -185,6 +187,8 @@
   will-change: transform;
   border: 1px solid rgba(0,0,0,0.04);
   transition: box-shadow 0.4s;
+  /* GPU compositing for 3D transforms */
+  transform: translateZ(0);
 }
 
 .polaroid-card:hover .polaroid-inner {
@@ -463,6 +467,8 @@
   transition: box-shadow 0.5s var(--ease-smooth),
               transform 0.5s var(--ease-smooth),
               border-color 0.3s;
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .magazine-card:hover {

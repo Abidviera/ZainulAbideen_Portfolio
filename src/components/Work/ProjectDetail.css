@@ -24,6 +24,7 @@
   position: absolute;
   inset: 0;
   will-change: transform;
+  transform: translateZ(0);
 }
 
 .pd-hero-bg-img {
@@ -312,6 +313,7 @@
   text-align: center;
   gap: 6px;
   transition: background 0.3s;
+  transform: translateZ(0);
 }
 
 .pd-stat-item:hover {
@@ -546,6 +548,8 @@
   object-fit: cover;
   display: block;
   transition: transform 0.6s var(--ease-smooth);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .pd-gallery-main:hover .pd-gallery-main-img {
@@ -630,6 +634,8 @@
   object-fit: cover;
   display: block;
   transition: transform 0.5s var(--ease-smooth);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .pd-gallery-item:hover img {
@@ -839,6 +845,7 @@
   gap: 12px;
   transition: all 0.4s var(--ease-bounce);
   box-shadow: var(--shadow-sm);
+  transform: translateZ(0);
 }
 
 .pd-feature-card:hover {
@@ -1000,6 +1007,7 @@
   text-decoration: none;
   display: flex;
   flex-direction: column;
+  transform: translateZ(0);
 }
 
 .pd-related-card:hover {
