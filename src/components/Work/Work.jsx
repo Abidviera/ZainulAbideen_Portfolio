@@ -164,7 +164,10 @@ const PolaroidCard = ({ project, index, onOpen, cardRef }) => {
               e.currentTarget.src = FALLBACK_IMG;
             }}
           />
-          <div className="polaroid-overlay">
+          <div
+            className="polaroid-overlay"
+            style={{ opacity: hovered ? 1 : 0, pointerEvents: hovered ? "auto" : "none" }}
+          >
             <button className="polaroid-view-btn">
               <svg
                 width="16"
@@ -391,32 +394,33 @@ const projects = [
   },
   {
     id: 4,
-    slug: "travel-expense-tracker",
-    title: "Travel Expense Tracker",
+    slug: "expense-tracker",
+    title: "Expense Tracker",
     category: "FinTech",
     description:
-      "Travel expense and income management system with multi-role support, trip tracking, expense logging, reimbursements, and real-time financial reporting.",
-    tech: ["ASP.NET Core", "Angular 18", "SQL Server"],
-    img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80",
+      "Full-stack enterprise financial management and analytics platform with role-based dashboards, expense/income management, approval workflows, and 17+ interactive analytics dashboards including profitability, anomaly detection, and budget vs actual tracking.",
+    tech: ["Angular 19", "ASP.NET Core 8", "SQL Server", "Chart.js", "ApexCharts"],
+    img: "/projects/expenseTracker/Screenshot 2026-04-20 210000.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1200&q=85",
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
-      "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=85",
+      "/projects/expenseTracker/Screenshot 2026-04-20 205858.webp",
+      "/projects/expenseTracker/Screenshot 2026-04-20 205909.webp",
+      "/projects/expenseTracker/Screenshot 2026-04-20 210000.webp",
+      "/projects/expenseTracker/Screenshot 2026-04-20 210311.webp",
     ],
     color: "#84cc16",
-    year: "2024",
+    year: "2025",
     stats: [
-      { value: 40, suffix: "%", label: "Cost Reduction" },
-      { value: 8, suffix: "min", label: "Expense Filing" },
-      { value: 100, suffix: "%", label: "Audit Compliance" },
+      { value: 17, suffix: "+", label: "Analytics Dashboards" },
+      { value: 4, suffix: "", label: "User Roles" },
+      { value: 10, suffix: "+", label: "Core Modules" },
     ],
     features: [
-      "Multi-currency support",
-      "Receipt scanning (OCR)",
-      "Approval workflow engine",
-      "Expense policy enforcement",
-      "Real-time financial reports",
-      "Export to accounting software",
+      "JWT auth with email OTP verification and multi-stage user approvals",
+      "Role-based access for Admin, Accountant, Viewer, and User",
+      "Expense & income CRUD with outstanding balance tracking",
+      "Master data management (countries, locations, categories, currencies, taxes)",
+      "17+ interactive analytics dashboards with Chart.js and ApexCharts",
+      "Exportable financial reports to Excel (XLSX) and CSV",
     ],
   },
   {
@@ -427,9 +431,9 @@ const projects = [
     description:
       "Comprehensive ERP platform integrating inventory, billing, CRM, and reporting modules. Designed for enterprise scalability and real-time data handling, improving operational efficiency across departments.",
     tech: ["NestJS", "Angular 18", "MongoDB"],
-    img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80",
+    img: "/projects/caaderp/image1.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=85",
+      "/projects/caaderp/image1.webp",
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
       "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=85",
     ],
@@ -457,7 +461,7 @@ const projects = [
     description:
       "Business networking and management platform for professionals. Features include member profiles, business directory, event management, and collaborative tools.",
     tech: ["NestJS", "Angular", "MongoDB"],
-    img: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
+    img: "/projects/albayanbusinessmen/albayan.webp",
     gallery: [
       "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=85",
       "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1200&q=85",
@@ -517,7 +521,7 @@ const projects = [
     description:
       "Digital media management platform built with React frontend and ASP.NET Core backend. Enables content creation, publishing workflows, and media asset management.",
     tech: ["React", "ASP.NET Core", "SQL Server"],
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80",
+    img: "/projects/markMedia/markmedia1.webp",
     gallery: [
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85",
       "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=85",
@@ -546,13 +550,14 @@ const projects = [
     title: "CartX E-Commerce",
     category: "E-Commerce",
     description:
-      "Scalable e-commerce application with shopping cart, order management, and secure checkout, focusing on UI responsiveness and backend performance.",
+      "Scalable e-commerce application with shopping cart, order management, and secure checkout, focusing on UI responsiveness and backend performance across all devices.",
     tech: ["ASP.NET Core", "Angular", "SQL Server"],
-    img: "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&q=80",
+    img: "/projects/cyanstore/1.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=85",
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=85",
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=85",
+      "/projects/cyanstore/1.webp",
+      "/projects/cyanstore/2.webp",
+      "/projects/cyanstore/3 (1).webp",
+      "/projects/cyanstore/3 (2).webp",
     ],
     color: "#14b8a6",
     year: "2023",
@@ -578,7 +583,7 @@ const projects = [
     description:
       "Corporate web application delivering a high-performance, responsive user experience with dynamic content management, optimized page load, and seamless backend integration.",
     tech: ["ASP.NET Core", "Angular", "SQL Server"],
-    img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&q=80",
+    img: "/projects/jetfuel/jetfuel.webp",
     gallery: [
       "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=85",
       "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&q=85",
@@ -607,58 +612,63 @@ const projects = [
     title: "Job Portal System",
     category: "Job Platform",
     description:
-      "Full-stack job portal with Admin, Employer, and Job Seeker modules. Features include role-based access, job management, profile handling, and secure JWT authentication.",
-    tech: ["ASP.NET Core", "Angular", "Web API", "SQL Server", "JWT"],
-    img: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80",
+      "Full-featured Angular 16 job portal with employer dashboard, job lifecycle management, applicant tracking, interview scheduling, and company administration. Built with reactive forms, lazy-loaded modules, and Angular Material dialogs integrated with an ASP.NET Core Web API.",
+    tech: ["Angular 16", "ASP.NET Core Web API", "Bootstrap 5", "Angular Material", "RxJS", "AOS", "TypeScript"],
+    img: "/projects/jobportal/Screenshot 2026-04-21 003606.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1200&q=85",
-      "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1200&q=85",
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&q=85",
+      "/projects/jobportal/Screenshot 2026-04-21 003606.webp",
+      "/projects/jobportal/Screenshot 2026-04-21 092919.webp",
+      "/projects/jobportal/Screenshot 2026-04-21 092926.webp",
+      "/projects/jobportal/Screenshot 2026-04-21 092949.webp",
+      "/projects/jobportal/Screenshot 2026-04-21 093009.webp",
     ],
     color: "#8b5cf6",
-    year: "2024",
+    year: "2025",
     stats: [
-      { value: 5000, suffix: "+", label: "Jobs Posted" },
-      { value: 20, suffix: "K+", label: "Candidates" },
-      { value: 80, suffix: "%", label: "Hire Rate" },
+      { value: 9, suffix: "", label: "Dashboard Modules" },
+      { value: 3, suffix: "", label: "Auth Screens" },
+      { value: 3, suffix: "", label: "API Services" },
     ],
     features: [
-      "Smart job matching algorithm",
-      "Resume parser & scoring",
-      "Employer talent dashboard",
-      "Candidate tracking system",
-      "Automated job alerts",
-      "Interview scheduling",
+      "Three-step auth: signup, email verification, password set",
+      "Job Provider dashboard with live clock and interview list",
+      "Post, list, edit (via Material dialog), delete jobs",
+      "Applicant tracking and interview scheduling",
+      "Company management with full CRUD",
+      "Expandable sidebar navigation with Bootstrap Icons",
     ],
   },
   {
     id: 12,
     slug: "cyanstore-ecommerce",
     title: "CYANSTORE E-Commerce",
-    category: "E-Commerce",
+    category: "Full-Stack E-Commerce",
     description:
-      "End-to-end e-commerce system supporting multi-category product listings, shopping carts, and secure payments, offering a seamless and responsive user experience.",
-    tech: ["ASP.NET Core", "Angular", "SQL Server", "JWT"],
-    img: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80",
+      "Full-stack Angular 16 + .NET e-commerce SPA with cinematic fashion brand aesthetic. Features lazy-loaded modules, phone/email OTP authentication, Swiper video galleries, and GSAP cinematic animations.",
+    tech: ["Angular 16", "ASP.NET Core", "SQL Server", "Bootstrap 5", "GSAP", "Swiper.js"],
+    img: "/projects/cyanstore/1.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=85",
-      "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=85",
-      "https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=85",
+      "/projects/cyanstore/1.webp",
+      "/projects/cyanstore/2.webp",
+      "/projects/cyanstore/3 (1).webp",
+      "/projects/cyanstore/3 (2).webp",
+      "/projects/cyanstore/3 (3).webp",
+      "/projects/cyanstore/3 (4).webp",
     ],
     color: "#06b6d4",
-    year: "2023",
+    year: "2024",
     stats: [
-      { value: 30, suffix: "K+", label: "SKUs Managed" },
-      { value: 99, suffix: "%", label: "Payment Success" },
-      { value: 4, suffix: "x", label: "Average ROI" },
+      { value: 3, suffix: "", label: "Lazy Modules" },
+      { value: 6, suffix: "+", label: "Feature Modules" },
+      { value: 2, suffix: "", label: "OTP Flows" },
     ],
     features: [
-      "Advanced product variants",
-      "Tiered pricing engine",
-      "Multi-payment gateway",
-      "Customer loyalty program",
-      "Order fulfillment tracking",
-      "Affiliate management",
+      "Lazy-loaded feature modules (Landing, Auth, CyanFasion, Cartx)",
+      "Dual-mode OTP auth — phone SMS and email verification",
+      "6-digit auto-focus OTP input with countdown timer",
+      "Reactive forms with custom validators",
+      "Swiper.js 11 fashion video gallery with hover-to-play",
+      "GSAP cinematic scroll animations and micro-interactions",
     ],
   },
   {

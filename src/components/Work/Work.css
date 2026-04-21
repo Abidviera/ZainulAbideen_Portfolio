@@ -139,10 +139,20 @@
 /* ── Polaroid Card ─────────────────────────────────────────── */
 .polaroid-card {
   position: relative;
-  cursor: none;
+  cursor: pointer;
   display: flex;
   align-items: flex-start;
   justify-content: center;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+/* Fill the card's grid cell so CSS :hover works everywhere */
+.polaroid-card::before {
+  content: '';
+  position: absolute;
+  inset: -40px;
+  z-index: -1;
 }
 
 .polaroid-pin {
@@ -152,6 +162,7 @@
   transform: translateX(-50%);
   z-index: 10;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2));
+  pointer-events: none;
 }
 
 .polaroid-pin svg {
@@ -284,6 +295,7 @@
   right: -6px;
   z-index: 5;
   transform-origin: top center;
+  pointer-events: none;
 }
 
 /* Stamp on polaroid */
@@ -292,6 +304,7 @@
   bottom: 44px;
   right: -8px;
   z-index: 5;
+  pointer-events: none;
 }
 
 /* ── String Connections ─────────────────────────────────────── */
@@ -304,6 +317,7 @@
   width: 32px;
   height: 42px;
   transition: transform 0.3s var(--ease-bounce);
+  pointer-events: none;
 }
 
 .polaroid-card:hover .pushpin {
@@ -352,6 +366,7 @@
     0 1px 2px rgba(0,0,0,0.05);
   transform: rotate(-2deg);
   position: relative;
+  pointer-events: none;
 }
 
 .postit-note::after {

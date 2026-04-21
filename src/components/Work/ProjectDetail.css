@@ -12,6 +12,7 @@
 /* ── HERO ────────────────────────────────────────────────── */
 .pd-hero {
   position: relative;
+  width: 100vw;
   height: 100svh;
   min-height: 600px;
   display: flex;
@@ -27,8 +28,9 @@
 
 .pd-hero-bg-img {
   position: absolute;
-  inset: -10%;
-  width: 120%;
+  top: -10%;
+  left: 0;
+  width: 100vw;
   height: 120%;
   object-fit: cover;
   filter: brightness(0.4) saturate(0.8);
@@ -49,10 +51,8 @@
 .pd-hero-content {
   position: relative;
   z-index: 10;
-  padding: 0 var(--space-lg) var(--space-2xl);
+  padding: 0 var(--space-2xl) var(--space-2xl);
   width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);

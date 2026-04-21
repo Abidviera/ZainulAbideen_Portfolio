@@ -178,10 +178,10 @@ export const projects = [
   },
   {
     id: 7,
-    name: 'Travel Expense Tracker',
-    tech: 'ASP.NET Core, Angular 18+, SQL Server',
-    year: 2024,
-    desc: 'A travel expense and income management system developed for a Georgian client. Supports multiple user roles (Admin, Driver, Accountant) with modules for trip tracking, expense logging, reimbursements, and real-time reporting for financial transparency.',
+    name: 'Expense Tracker',
+    tech: 'Angular 19, ASP.NET Core 8, SQL Server, Entity Framework Core, Chart.js, ApexCharts, JWT, Hangfire',
+    year: 2025,
+    desc: 'Full-stack enterprise financial management and analytics platform. Built with Angular 19 frontend and ASP.NET Core 8 backend. Features include JWT authentication with OTP, role-based access (Admin, Accountant, Viewer, User), expense/income CRUD, approval workflows, master data management, and 17+ interactive analytics dashboards covering profitability, trend analysis, anomaly detection, budget vs actual, payment status, and spending heatmaps.',
   },
   {
     id: 8,
@@ -340,8 +340,8 @@ function projectsAll() {
    Professional networking platform with directory and event management.
 6. **Learning Management System** (2024) — ASP.NET Core, Angular, SQL Server, JWT
    E-learning with course creation, enrollment, and assessments.
-7. **Travel Expense Tracker** (2024) — ASP.NET Core, Angular 18+, SQL Server
-   Multi-role (Admin, Driver, Accountant) expense management for a Georgian client.
+7. **Expense Tracker** (2025) — Angular 19, ASP.NET Core 8, SQL Server, Chart.js, ApexCharts
+   Full-stack financial platform with 17+ analytics dashboards, role-based access, approval workflows, and enterprise-level reporting.
 8. **Sales App** (2024) — NestJS, Angular, MongoDB
    Dynamic sales management with reporting and performance analytics.
 9. **Self Food Ordering Kiosk** (2024) — NestJS, Angular, MongoDB
@@ -369,7 +369,7 @@ function projectMelizzo() {
 }
 
 function projectTravel() {
-  return `**Travel Expense Tracker** (2024) is a travel expense and income management system developed for a Georgian client. Built with ASP.NET Core and Angular 18+. It supports multiple user roles (Admin, Driver, Accountant) with modules for trip tracking, expense logging, reimbursements, and real-time reporting for financial transparency.`;
+  return `**Expense Tracker** (2025) is a full-stack enterprise financial management and analytics platform built with Angular 19 and ASP.NET Core 8. It features JWT authentication with email OTP verification, role-based access for Admin/Accountant/Viewer/User, expense and income CRUD with outstanding balance tracking, master data management for countries/locations/categories/currencies/taxes, and 17+ interactive analytics dashboards powered by Chart.js and ApexCharts covering profitability trends, anomaly detection, budget vs actual, payment status, spending heatmaps, customer lifetime value, and growth analysis. Built with SQL Server, Entity Framework Core, Hangfire for background jobs, and a repository/service architecture.`;
 }
 
 function projectSales() {
@@ -456,7 +456,7 @@ function react() {
 }
 
 function angular() {
-  return `${profile.firstName} is proficient in **Angular** at 90%. He is a **Certified Test Driven Developer (Angular)**. He's built the majority of his projects (CAAD ERP, Travel Expense Tracker, Job Portal, CYANSTORE, Library Management System, and more) using Angular from version 14 through Angular 18.`;
+  return `${profile.firstName} is proficient in **Angular** at 90%. He is a **Certified Test Driven Developer (Angular)**. He's built the majority of his projects (CAAD ERP, Expense Tracker, Job Portal, CYANSTORE, Library Management System, and more) using Angular from version 14 through Angular 19.`;
 }
 
 function dotnetMAUI() {
@@ -468,7 +468,7 @@ function typescript() {
 }
 
 function sqlserver() {
-  return `${profile.firstName} works with **SQL Server** and **SQLite** for most ASP.NET Core projects — Melizzo, JetFuel, Mark Media, Travel Expense Tracker, Job Portal, CYANSTORE, Library Management System, and CARTX all use SQL Server with Entity Framework Core. He is a Certified System Analyst with database design expertise.`;
+  return `${profile.firstName} works with **SQL Server** and **SQLite** for most ASP.NET Core projects — Melizzo, JetFuel, Mark Media, Expense Tracker, Job Portal, CYANSTORE, Library Management System, and CARTX all use SQL Server with Entity Framework Core. He is a Certified System Analyst with database design expertise.`;
 }
 
 function mongodb() {
