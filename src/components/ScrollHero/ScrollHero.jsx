@@ -547,6 +547,7 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
     { name: "ASP.NET", color: "#512BD4", src: "/skillLogos/asp.net.webp" },
     { name: "React", color: "#61DAFB", slug: "react" },
     { name: "Angular", color: "#DD0031", slug: "angular" },
+    { name: "Ionic Angular", color: "#3880FF", slug: "ionic" },
     { name: "TypeScript", color: "#3178C6", slug: "typescript" },
     { name: ".NET MAUI", color: "#512BD4", src: "/skillLogos/maui.webp" },
     { name: "NestJS", color: "#E0234E", slug: "nestjs" },
