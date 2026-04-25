@@ -133,7 +133,7 @@ export default function Navbar() {
         <div className="container navbar-inner">
           <a href="#" className="navbar-logo">
             <img
-              src="/abid.png"
+              src="/abid.webp"
               alt="Zainul Abideen"
               className="navbar-avatar"
             />
@@ -191,7 +191,7 @@ export default function Navbar() {
         <div className="mobile-nav-header">
           <a href="#" className="navbar-logo">
             <img
-              src="/abid.png"
+              src="/abid.webp"
               alt="Zainul Abideen"
               className="navbar-avatar"
             />
