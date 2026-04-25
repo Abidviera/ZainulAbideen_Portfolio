@@ -1,25 +1,24 @@
-import { useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import Lenis from 'lenis';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import './App.css';
 
-import CustomCursor from './components/CustomCursor/CustomCursor';
-import Marquee from './components/Marquee/Marquee';
-import ScrollHero from './components/ScrollHero/ScrollHero';
-import Navbar from './components/Navbar/Navbar';
-import Hero from './components/Hero/Hero';
 import About from './components/About/About';
-import Stats from './components/Stats/Stats';
-import Services from './components/Services/Services';
-import Experience from './components/Experience/Experience';
-import Work from './components/Work/Work';
-import Expertise from './components/Expertise/Expertise';
 import Awards from './components/Awards/Awards';
-import Contact from './components/Contact/Contact';
-import FooterHero from './components/FooterHero/FooterHero';
+import CustomCursor from './components/CustomCursor/CustomCursor';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import Experience from './components/Experience/Experience';
+import Expertise from './components/Expertise/Expertise';
+import FooterHero from './components/FooterHero/FooterHero';
+import Hero from './components/Hero/Hero';
+import Marquee from './components/Marquee/Marquee';
+import Navbar from './components/Navbar/Navbar';
+import ScrollHero from './components/ScrollHero/ScrollHero';
+import Services from './components/Services/Services';
+import Stats from './components/Stats/Stats';
+import Work from './components/Work/Work';
 
 const ProjectDetail = lazy(() => import('./components/Work/ProjectDetail'));
 const FloatingActions = lazy(() => import('./components/FloatingActions/FloatingActions'));
@@ -43,9 +42,11 @@ function HomePage({ greetingDone, setGreetingDone }) {
   useEffect(() => {
     if (!footerRef.current) return;
     const ctx = gsap.context(() => {
+      const footer = footerRef.current;
+
       // Watermark — dramatic clip reveal
       gsap.fromTo(
-        '.footer-watermark',
+        footer.querySelector('.footer-watermark'),
         { clipPath: 'inset(0 0 100% 0)', opacity: 0 },
         {
           clipPath: 'inset(0 0 0% 0)',
@@ -53,7 +54,7 @@ function HomePage({ greetingDone, setGreetingDone }) {
           duration: 1.2,
           ease: 'power4.out',
           scrollTrigger: {
-            trigger: '.footer',
+            trigger: footer,
             start: 'top 85%',
             toggleActions: 'play none none none',
           },
@@ -62,7 +63,7 @@ function HomePage({ greetingDone, setGreetingDone }) {
 
       // Contact items — stagger fade in
       gsap.fromTo(
-        '.footer-contact-item',
+        footer.querySelectorAll('.footer-contact-item'),
         { opacity: 0, y: 16 },
         {
           opacity: 1,
@@ -71,7 +72,7 @@ function HomePage({ greetingDone, setGreetingDone }) {
           ease: 'power3.out',
           stagger: 0.12,
           scrollTrigger: {
-            trigger: '.footer-contact',
+            trigger: footer.querySelector('.footer-contact'),
             start: 'top 90%',
             toggleActions: 'play none none none',
           },
@@ -81,14 +82,14 @@ function HomePage({ greetingDone, setGreetingDone }) {
 
       // Bottom bar
       gsap.fromTo(
-        '.footer-bottom',
+        footer.querySelector('.footer-bottom'),
         { opacity: 0 },
         {
           opacity: 1,
           duration: 0.8,
           ease: 'power3.out',
           scrollTrigger: {
-            trigger: '.footer-bottom',
+            trigger: footer.querySelector('.footer-bottom'),
             start: 'top 92%',
             toggleActions: 'play none none none',
           },
@@ -173,11 +174,16 @@ function App() {
     document.body.appendChild(progressBar);
 
     const lenis = new Lenis({
-      lerp: 0.05,
+      // "Free-Glide" configuration to completely eliminate friction / stuck feeling
+      lerp: 0.1, // Higher lerp means it catches up faster, removing the elastic dragging sensation
+      duration: 1.5, 
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
       smoothWheel: true,
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.8, // Travels significantly further per physical scroll, feels much lighter
+      touchMultiplier: 2, 
       infinite: false,
+      normalizeWheel: false, // Crucial: Turned FALSE. Normalization often artificially caps standard mice, causing the "stuck" feeling
+      syncTouch: true, 
     });
     lenisRef.current = lenis;
     window.__LENIS__ = lenis;
@@ -187,18 +193,16 @@ function App() {
       progressBar.style.transform = `scaleX(${progress})`;
     });
 
-    let rafId;
-    const rafFn = (time) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(rafFn);
+    const updateLenis = (time) => {
+      lenis.raf(time * 1000);
     };
-    rafId = requestAnimationFrame(rafFn);
+    gsap.ticker.add(updateLenis);
 
     gsap.ticker.lagSmoothing(0);
     document.documentElement.classList.add('lenis');
 
     return () => {
-      cancelAnimationFrame(rafId);
+      gsap.ticker.remove(updateLenis);
       lenis.destroy();
       lenisRef.current = null;
       window.__LENIS__ = null;

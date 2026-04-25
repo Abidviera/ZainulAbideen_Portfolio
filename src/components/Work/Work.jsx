@@ -115,9 +115,11 @@ const PolaroidCard = ({ project, index, onOpen, cardRef }) => {
     if (!el) return;
 
     // Use quickTo for faster GSAP property updates (avoids tween object creation each frame)
+    // Use explicit transform sub-properties to avoid "not eligible for reset" warnings
     const quickX = gsap.quickTo(el, "rotateY", { duration: 0.5, ease: "power2.out" });
     const quickY = gsap.quickTo(el, "rotateX", { duration: 0.5, ease: "power2.out" });
-    const quickScale = gsap.quickTo(el, "scale", { duration: 0.5, ease: "power2.out" });
+    const quickScaleX = gsap.quickTo(el, "scaleX", { duration: 0.5, ease: "power2.out" });
+    const quickScaleY = gsap.quickTo(el, "scaleY", { duration: 0.5, ease: "power2.out" });
 
     const handleMouseMove = rafThrottle((e) => {
       const rect = el.getBoundingClientRect();
@@ -127,14 +129,16 @@ const PolaroidCard = ({ project, index, onOpen, cardRef }) => {
       const dy = (e.clientY - cy) / (window.innerHeight / 2);
       quickX(dx * 12);
       quickY(-dy * 8);
-      quickScale(1.06);
+      quickScaleX(1.06);
+      quickScaleY(1.06);
     });
 
     const handleMouseLeave = () => {
       gsap.to(el, {
         rotateY: rot,
         rotateX: 0,
-        scale: 1,
+        scaleX: 1,
+        scaleY: 1,
         duration: 0.7,
         ease: "elastic.out(1, 0.5)",
       });
