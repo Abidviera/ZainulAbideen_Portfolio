@@ -233,8 +233,8 @@ export default function About() {
             </p>
             <div style={{ marginTop: 'var(--space-lg)', display: 'flex', gap: 'var(--space-sm)', flexWrap: 'wrap' }}>
               <a
-                href="/resume.pdf"
-                download="Zainul_Abideen_EH_Resume.pdf"
+                href="/resume/RESUME_ZAINULABIDEEN_EH_FULLSTACK.pdf"
+                download="RESUME_ZAINULABIDEEN_EH_FULLSTACK.pdf"
                 className="contact-cta-btn"
                 style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
               >
