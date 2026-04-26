@@ -25,6 +25,22 @@ const FloatingActions = lazy(() => import('./components/FloatingActions/Floating
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Global ScrollTrigger defaults for performance
+ScrollTrigger.defaults({
+  toggleActions: 'play none none none',
+  fastScrollEnd: true,
+  preventOverlaps: true,
+});
+
+// Kill all ScrollTriggers on page hide to save memory
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      ScrollTrigger.getAll().forEach(t => t.scroller.scroll(0, 0));
+    }
+  });
+}
+
 // Scroll restoration on route change
 function ScrollRestore() {
   const { pathname } = useLocation();
@@ -174,16 +190,16 @@ function App() {
     document.body.appendChild(progressBar);
 
     const lenis = new Lenis({
-      // "Free-Glide" configuration to completely eliminate friction / stuck feeling
-      lerp: 0.1, // Higher lerp means it catches up faster, removing the elastic dragging sensation
-      duration: 1.5, 
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
+      // Ultra-responsive configuration for feather-like scrolling
+      lerp: 0.05,
+      duration: 0.8,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 1.8, // Travels significantly further per physical scroll, feels much lighter
-      touchMultiplier: 2, 
+      wheelMultiplier: 1,
+      touchMultiplier: 1.5,
       infinite: false,
-      normalizeWheel: false, // Crucial: Turned FALSE. Normalization often artificially caps standard mice, causing the "stuck" feeling
-      syncTouch: true, 
+      normalizeWheel: true,
+      syncTouch: false,
     });
     lenisRef.current = lenis;
     window.__LENIS__ = lenis;
@@ -198,10 +214,23 @@ function App() {
     };
     gsap.ticker.add(updateLenis);
 
+    // Disable lag smoothing for consistent 60fps
     gsap.ticker.lagSmoothing(0);
+
+    // Performance: limit ScrollTrigger refresh calls
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
     document.documentElement.classList.add('lenis');
 
     return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', handleResize);
       gsap.ticker.remove(updateLenis);
       lenis.destroy();
       lenisRef.current = null;

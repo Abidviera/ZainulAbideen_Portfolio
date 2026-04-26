@@ -1,8 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import './CustomCursor.css';
 
 const INTERACTIVE_SELECTOR =
   'a, button, [role="button"], .work-card-item, .service-card, .bento-card, .expertise-card, .award-card, .stat-card';
+
+// Performance: hide on touch devices
+const isTouchDevice = () =>
+  'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
 export default function CustomCursor() {
   const dotRef = useRef(null);
@@ -10,18 +14,52 @@ export default function CustomCursor() {
   const posRef = useRef({ x: 0, y: 0 });
   const ringPosRef = useRef({ x: 0, y: 0 });
   const rafRef = useRef(null);
+  const idleTimeoutRef = useRef(null);
+  const isIdleRef = useRef(true);
   const listenersTrackedRef = useRef(new Set());
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || isTouchDevice()) return;
+
     const dot = dotRef.current;
     const ring = ringRef.current;
     if (!dot || !ring) return;
+
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    const stopAnimation = () => {
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      isIdleRef.current = true;
+    };
+
+    const startAnimation = () => {
+      if (!isIdleRef.current) return;
+      isIdleRef.current = false;
+      animate();
+    };
+
+    const animate = () => {
+      if (isIdleRef.current) return;
+
+      ringPosRef.current.x = lerp(ringPosRef.current.x, posRef.current.x, 0.12);
+      ringPosRef.current.y = lerp(ringPosRef.current.y, posRef.current.y, 0.12);
+      ring.style.left = ringPosRef.current.x + 'px';
+      ring.style.top = ringPosRef.current.y + 'px';
+      rafRef.current = requestAnimationFrame(animate);
+    };
 
     const onMouseMove = (e) => {
       posRef.current = { x: e.clientX, y: e.clientY };
       dot.style.left = e.clientX + 'px';
       dot.style.top = e.clientY + 'px';
+
+      // Reset idle timer
+      clearTimeout(idleTimeoutRef.current);
+      startAnimation();
+      idleTimeoutRef.current = setTimeout(stopAnimation, 2000);
     };
 
     const onMouseDown = () => {
@@ -34,15 +72,6 @@ export default function CustomCursor() {
       ring.classList.remove('clicking');
     };
 
-    const onMouseOver = (e) => {
-      const target = e.target.closest(INTERACTIVE_SELECTOR);
-      if (target) {
-        ring.classList.add('hovering');
-      } else {
-        ring.classList.remove('hovering');
-      }
-    };
-
     const addListeners = () => {
       const interactives = document.querySelectorAll(INTERACTIVE_SELECTOR);
       interactives.forEach((el) => {
@@ -53,34 +82,24 @@ export default function CustomCursor() {
       });
     };
 
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const animate = () => {
-      ringPosRef.current.x = lerp(ringPosRef.current.x, posRef.current.x, 0.12);
-      ringPosRef.current.y = lerp(ringPosRef.current.y, posRef.current.y, 0.12);
-      ring.style.left = ringPosRef.current.x + 'px';
-      ring.style.top = ringPosRef.current.y + 'px';
-      rafRef.current = requestAnimationFrame(animate);
-    };
-
-    rafRef.current = requestAnimationFrame(animate);
     addListeners();
 
+    // Use event delegation instead of MutationObserver for better performance
     const observer = new MutationObserver(() => {
       addListeners();
     });
     observer.observe(document.body, { childList: true, subtree: true });
 
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mouseup', onMouseUp);
-    window.addEventListener('mouseover', onMouseOver);
 
     return () => {
-      cancelAnimationFrame(rafRef.current);
+      stopAnimation();
+      clearTimeout(idleTimeoutRef.current);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
-      window.removeEventListener('mouseover', onMouseOver);
       observer.disconnect();
       listenersTrackedRef.current.clear();
     };

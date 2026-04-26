@@ -53,8 +53,12 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
   const greetingOverlayBgRef = useRef(null);
 
   const imagesRef = useRef([]);
+  const currentFrameRef = useRef(0);
+  const sectionHeightRef = useRef(0);
+  const loadedCountRef = useRef(0);
+  const scrollEnabledRef = useRef(false);
 
-  // Preload frames progressively — first batch immediately, rest in background
+  // Progressive loading: enable scrolling after first batch, continue loading in background
   useEffect(() => {
     const imgs = [];
     let loaded = 0;
@@ -72,36 +76,35 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
           hasSetFirst = true;
         }
         loaded++;
-        if (loaded >= TOTAL_FRAMES) setReady(true);
+        loadedCountRef.current = loaded;
+
+        // Enable scrolling after first 20 frames are loaded (quick on any connection)
+        if (loaded >= 20 && !scrollEnabledRef.current) {
+          scrollEnabledRef.current = true;
+          setReady(true);
+        }
+
+        // Complete when all loaded
+        if (loaded >= TOTAL_FRAMES) {
+          setReady(true);
+        }
       };
       img.onerror = () => {
         loaded++;
+        loadedCountRef.current = loaded;
+        if (loaded >= 20 && !scrollEnabledRef.current) {
+          scrollEnabledRef.current = true;
+          setReady(true);
+        }
         if (loaded >= TOTAL_FRAMES) setReady(true);
       };
     };
 
-    // First 5 frames immediately
-    for (let i = 1; i <= 5; i++) {
+    // Start loading all frames
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
       preloadFrame(i);
     }
 
-    // Rest in batches of 20 with small delay
-    const BATCH_SIZE = 20;
-    const BATCH_DELAY = 50;
-    let batchIndex = 6;
-
-    const loadBatch = () => {
-      const end = Math.min(batchIndex + BATCH_SIZE - 1, TOTAL_FRAMES);
-      for (let i = batchIndex; i <= end; i++) {
-        preloadFrame(i);
-      }
-      batchIndex = end + 1;
-      if (batchIndex <= TOTAL_FRAMES) {
-        setTimeout(loadBatch, BATCH_DELAY);
-      }
-    };
-
-    setTimeout(loadBatch, BATCH_DELAY);
     imagesRef.current = imgs;
   }, []);
 
@@ -124,7 +127,6 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
       const accent = greetingAccentRef.current;
       const timeEl = greetingTimeRef.current;
 
-      // Init — everything hidden
       gsap.set([bg, greetingRef.current], { opacity: 0 });
       gsap.set([orb1, orb2], { opacity: 0, scale: 0.5 });
       gsap.set([ray1, ray2], { scaleX: 0, opacity: 0 });
@@ -143,83 +145,45 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
         });
       if (timeEl) gsap.set(timeEl, { opacity: 0, y: 10 });
 
-      // 0. Background fades in
-      tl.to(
-        [bg, greetingRef.current],
-        { opacity: 1, duration: 0.25, ease: "power2.out" },
-        0,
-      );
+      tl.to([bg, greetingRef.current], { opacity: 1, duration: 0.25, ease: "power2.out" }, 0);
+      tl.to([orb1, orb2], { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" }, 0.1);
+      tl.to([ray1, ray2], { scaleX: 1, opacity: 0.12, duration: 0.4, ease: "power3.inOut" }, 0.2);
 
-      // 1. Ambient orbs expand
-      tl.to(
-        [orb1, orb2],
-        { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" },
-        0.1,
-      );
-
-      // 2. Light rays sweep in
-      tl.to(
-        [ray1, ray2],
-        { scaleX: 1, opacity: 0.12, duration: 0.4, ease: "power3.inOut" },
-        0.2,
-      );
-
-      // 3. "HELLO" — clip-path wipe reveal
       if (chars?.length) {
-        tl.to(
-          chars,
-          {
-            opacity: 1,
-            clipPath: "inset(0 0% 0 0)",
-            filter: "blur(0px)",
-            stagger: { each: 0.04, from: "start" },
-            duration: 0.4,
-            ease: "power4.out",
-          },
-          0.3,
-        );
-      }
-
-      // 4. "I'm Zainul" rises with blur
-      if (accent) {
-        tl.to(
-          accent.querySelectorAll(".accent-word"),
-          {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            stagger: 0.08,
-            duration: 0.4,
-            ease: "power3.out",
-          },
-          0.6,
-        );
-      }
-
-      // 5. Particles scatter
-      tl.to(
-        [p1, p2, p3, p4],
-        {
+        tl.to(chars, {
           opacity: 1,
-          scale: 1,
-          y: 0,
-          stagger: { each: 0.06, from: "random" },
-          duration: 0.35,
-          ease: "back.out(1.5)",
-        },
-        0.5,
-      );
-
-      // 6. Time string fades in
-      if (timeEl) {
-        tl.to(
-          timeEl,
-          { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
-          0.9,
-        );
+          clipPath: "inset(0 0% 0 0)",
+          filter: "blur(0px)",
+          stagger: { each: 0.04, from: "start" },
+          duration: 0.4,
+          ease: "power4.out",
+        }, 0.3);
       }
 
-      // 7. Particles drift up
+      if (accent) {
+        tl.to(accent.querySelectorAll(".accent-word"), {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          stagger: 0.08,
+          duration: 0.4,
+          ease: "power3.out",
+        }, 0.6);
+      }
+
+      tl.to([p1, p2, p3, p4], {
+        opacity: 1,
+        scale: 1,
+        y: 0,
+        stagger: { each: 0.06, from: "random" },
+        duration: 0.35,
+        ease: "back.out(1.5)",
+      }, 0.5);
+
+      if (timeEl) {
+        tl.to(timeEl, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, 0.9);
+      }
+
       gsap.to([p1, p2, p3, p4], {
         y: -80,
         opacity: 0,
@@ -229,7 +193,6 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
         delay: 0.8,
       });
 
-      // 8. Orbs breathe
       gsap.to([orb1, orb2], {
         scale: 1.12,
         duration: 1.2,
@@ -239,111 +202,79 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
         stagger: 0.3,
       });
 
-      // 9. Entire greeting — fade + scale out
-      tl.to(
-        greetingRef.current,
-        {
-          opacity: 0,
-          scale: 1.03,
-          duration: 0.5,
-          ease: "power2.in",
-        },
-        1.7,
-      );
+      tl.to(greetingRef.current, {
+        opacity: 0,
+        scale: 1.03,
+        duration: 0.5,
+        ease: "power2.in",
+      }, 1.7);
 
-      tl.call(
-        () => {
-          setGreetingDone(true);
-        },
-        [],
-        2.2,
-      );
+      tl.call(() => { setGreetingDone(true); }, [], 2.2);
     }, greetingRef);
 
     return () => ctx.revert();
   }, [greetingDone, setGreetingDone]);
 
-  // Frame scrubbing — ultra-smooth on mobile via RAF + normalized scroll
+  // Ultra-smooth frame scrubbing — direct scroll sync, no RAF delay
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !containerRef.current || !imgRef.current) return;
+
     const container = containerRef.current;
     const img = imgRef.current;
     const counter = frameDisplayRef.current;
-    if (!container || !img) return;
 
-    img.src = imagesRef.current[0].src;
+    // Preload first frame
+    img.src = imagesRef.current[0]?.src || '';
+    sectionHeightRef.current = container.offsetHeight;
 
-    const isMobile =
-      /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-      window.matchMedia("(max-width: 768px)").matches;
-    const FRAME_STEP = isMobile ? 2 : 1; // advance 2 frames per update on mobile
-    
-    // Sync purely with Lenis smooth scrolling to avoid double interpolation latency
-    const SCRUB_VALUE = true;
+    const updateFrame = () => {
+      const rect = container.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const scrollableDistance = container.offsetHeight - viewportHeight;
 
-    let st = null;
-    let frameCount = 0;
-    let cachedSectionHeight = 0;
-    let cachedViewportHeight = 0;
+      // Calculate progress: 0 when container top hits viewport top, 1 when bottom
+      const progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
 
-    const updateCache = () => {
-      cachedSectionHeight = container.offsetHeight;
-      cachedViewportHeight = window.innerHeight;
-    };
+      // Get the maximum available frame (handles partial loading)
+      const maxAvailableFrame = Math.min(loadedCountRef.current, TOTAL_FRAMES - 1);
+      const frame = Math.min(maxAvailableFrame, Math.floor(progress * TOTAL_FRAMES));
 
-    const setupTrigger = () => {
-      if (st) {
-        st.kill();
-        st = null;
+      if (frame !== currentFrameRef.current && imagesRef.current[frame]) {
+        currentFrameRef.current = frame;
+        img.src = imagesRef.current[frame].src;
+        if (counter) {
+          counter.textContent = `${String(frame + 1).padStart(3, "0")} / ${TOTAL_FRAMES}`;
+        }
       }
-      updateCache();
-
-      st = ScrollTrigger.create({
-        trigger: container,
-        start: "top top",
-        end: "bottom bottom",
-        scrub: SCRUB_VALUE,
-        invalidateOnRefresh: true,
-        allowCPropOnTouchDevices: true,
-        onUpdate: (self) => {
-          frameCount++;
-          // Skip frames on mobile to reduce image swap pressure
-          if (isMobile && frameCount % FRAME_STEP !== 0) return;
-          const frame = Math.floor(self.progress * (TOTAL_FRAMES - 1));
-          const targetImg = imagesRef.current[frame];
-          if (targetImg && img.src !== targetImg.src) {
-            img.src = targetImg.src;
-          }
-          if (counter) {
-            counter.textContent = `${String(frame + 1).padStart(3, "0")} / ${TOTAL_FRAMES}`;
-          }
-        },
-      });
     };
 
-    setupTrigger();
+    // Use Lenis scroll event directly for smoothest sync
+    const handleScroll = () => updateFrame();
 
-    const onResize = () => {
-      updateCache();
-      ScrollTrigger.refresh();
-      setupTrigger();
-    };
-    window.addEventListener("resize", onResize, { passive: true });
+    // Try to use Lenis if available, otherwise fallback to native scroll
+    const lenis = window.__LENIS__;
+    if (lenis) {
+      lenis.on('scroll', handleScroll);
+    } else {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
 
-    // Handle mobile address bar show/hide
-    const onOrientationChange = () => {
-      setTimeout(() => {
-        updateCache();
-        ScrollTrigger.refresh();
-        setupTrigger();
-      }, 100);
+    // Initial update
+    updateFrame();
+
+    const handleResize = () => {
+      sectionHeightRef.current = container.offsetHeight;
+      updateFrame();
     };
-    window.addEventListener("orientationchange", onOrientationChange);
+    window.addEventListener('resize', handleResize, { passive: true });
 
     return () => {
-      if (st) st.kill();
-      window.removeEventListener("resize", onResize);
-      window.removeEventListener("orientationchange", onOrientationChange);
+      if (lenis) {
+        lenis.off('scroll', handleScroll);
+      } else {
+        window.removeEventListener('scroll', handleScroll);
+      }
+      window.removeEventListener('resize', handleResize);
     };
   }, [ready]);
 
@@ -354,158 +285,91 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ delay: 0.1 });
 
-      // 1. Label chip — slide in from left
       if (labelRef.current) {
         gsap.set(labelRef.current, { opacity: 0, x: -40 });
-        tl.to(
-          labelRef.current,
-          {
-            opacity: 1,
-            x: 0,
-            duration: 0.7,
-            ease: "power3.out",
-          },
-          0,
-        );
+        tl.to(labelRef.current, { opacity: 1, x: 0, duration: 0.7, ease: "power3.out" }, 0);
       }
 
-      // 2. Accent line — expand from left
       if (lineRef.current) {
-        gsap.set(lineRef.current, {
-          scaleX: 0,
-          transformOrigin: "left center",
-        });
-        tl.to(
-          lineRef.current,
-          {
-            scaleX: 1,
-            duration: 0.8,
-            ease: "power3.inOut",
-          },
-          0.2,
-        );
+        gsap.set(lineRef.current, { scaleX: 0, transformOrigin: "left center" });
+        tl.to(lineRef.current, { scaleX: 1, duration: 0.8, ease: "power3.inOut" }, 0.2);
       }
 
-      // 3. Name characters — staggered clip-path drop
       const chars = nameRef.current?.querySelectorAll(".sh-char");
       if (chars?.length) {
         gsap.set(chars, { opacity: 0, y: "110%", filter: "blur(8px)" });
-        tl.to(
-          chars,
-          {
-            opacity: 1,
-            y: "0%",
-            filter: "blur(0px)",
-            stagger: {
-              each: 0.04,
-              from: "start",
-            },
-            duration: 0.7,
-            ease: "power4.out",
-          },
-          0.3,
-        );
+        tl.to(chars, {
+          opacity: 1,
+          y: "0%",
+          filter: "blur(0px)",
+          stagger: { each: 0.04, from: "start" },
+          duration: 0.7,
+          ease: "power4.out",
+        }, 0.3);
       }
 
-      // 4. Subtitle words — staggered reveal
       const words = subtitleRef.current?.querySelectorAll(".sh-word");
       if (words?.length) {
         gsap.set(words, { opacity: 0, y: 20, skewY: 3 });
-        tl.to(
-          words,
-          {
-            opacity: 1,
-            y: 0,
-            skewY: 0,
-            stagger: 0.08,
-            duration: 0.6,
-            ease: "power3.out",
-          },
-          0.9,
-        );
+        tl.to(words, {
+          opacity: 1,
+          y: 0,
+          skewY: 0,
+          stagger: 0.08,
+          duration: 0.6,
+          ease: "power3.out",
+        }, 0.9);
       }
 
-      // 5. CTA buttons — set hidden first, then scale + fade stagger
       const btns = actionsRef.current?.querySelectorAll(".sh-btn");
       if (btns?.length) {
         gsap.set(btns, { opacity: 0, y: 20, scale: 0.92 });
-        tl.to(
-          btns,
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            stagger: 0.1,
-            duration: 0.6,
-            ease: "back.out(1.4)",
-          },
-          1.0,
-        );
+        tl.to(btns, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          stagger: 0.1,
+          duration: 0.6,
+          ease: "back.out(1.4)",
+        }, 1.0);
       }
 
-      // 5b. Skill logos — staggered pop in (after subtitle, before CTA)
-      const logoCards =
-        skillsLogoRef.current?.querySelectorAll(".skill-logo-card");
+      const logoCards = skillsLogoRef.current?.querySelectorAll(".skill-logo-card");
       if (logoCards?.length) {
         gsap.set(logoCards, { opacity: 0, y: 20, scale: 0.8 });
-        tl.to(
-          logoCards,
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            stagger: 0.06,
-            duration: 0.5,
-            ease: "back.out(1.8)",
-          },
-          0.9,
-        );
+        tl.to(logoCards, {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          stagger: 0.06,
+          duration: 0.5,
+          ease: "back.out(1.8)",
+        }, 0.9);
       }
 
-      // 6. Stats — set hidden first, then stagger slide up
       const statItems = statsRef.current?.querySelectorAll(".sh-stat");
       if (statItems?.length) {
         gsap.set(statItems, { opacity: 0, y: 24 });
-        tl.to(
-          statItems,
-          {
-            opacity: 1,
-            y: 0,
-            stagger: 0.1,
-            duration: 0.5,
-            ease: "power3.out",
-          },
-          1.15,
-        );
+        tl.to(statItems, {
+          opacity: 1,
+          y: 0,
+          stagger: 0.1,
+          duration: 0.5,
+          ease: "power3.out",
+        }, 1.15);
       }
 
-      // 7. Scroll indicator — fade in last
       if (scrollIndicatorRef.current) {
-        tl.to(
-          scrollIndicatorRef.current,
-          {
-            opacity: 1,
-            duration: 0.6,
-            ease: "power2.out",
-          },
-          1.5,
-        );
+        tl.to(scrollIndicatorRef.current, { opacity: 1, duration: 0.6, ease: "power2.out" }, 1.5);
       }
 
-      // 8b. Scroll exit distances
       const isMobile = window.matchMedia("(max-width: 768px)").matches;
       const exitDistance = window.innerHeight * (isMobile ? 0.8 : 1.5);
       const indicatorExitDist = window.innerHeight * (isMobile ? 0.3 : 0.5);
 
-      // 9. Scroll-driven exit — entire text fades out as user scrolls
       const allContent = [
-        labelRef.current,
-        lineRef.current,
-        nameRef.current,
-        subtitleRef.current,
-        actionsRef.current,
-        skillsLogoRef.current,
-        statsRef.current,
+        labelRef.current, lineRef.current, nameRef.current, subtitleRef.current,
+        actionsRef.current, skillsLogoRef.current, statsRef.current,
       ];
 
       allContent.forEach((el) => {
@@ -523,7 +387,6 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
         });
       });
 
-      // 10. Scroll indicator fades out on scroll
       if (scrollIndicatorRef.current) {
         gsap.to(scrollIndicatorRef.current, {
           opacity: 0,

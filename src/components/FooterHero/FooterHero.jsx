@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import './FooterHero.css';
 
@@ -17,12 +17,12 @@ export default function FooterHero() {
   const [loadProgress, setLoadProgress] = useState(0);
   const [ready, setReady] = useState(false);
   const imagesRef = useRef([]);
-  const rafRef = useRef(null);
-  const isInViewRef = useRef(false);
-  const cachedHeightRef = useRef(null); // cached section height
-  const cachedViewportRef = useRef(null); // cached viewport height
+  const currentFrameRef = useRef(0);
+  const sectionHeightRef = useRef(0);
+  const loadedCountRef = useRef(0);
+  const scrollEnabledRef = useRef(false);
 
-  // Preload frames progressively — first batch immediately, rest in background
+  // Progressive loading: enable scrolling after first batch, continue loading in background
   useEffect(() => {
     const imgs = [];
     let loaded = 0;
@@ -40,129 +40,103 @@ export default function FooterHero() {
           hasSetFirst = true;
         }
         loaded++;
+        loadedCountRef.current = loaded;
         setLoadProgress(loaded / TOTAL_FRAMES);
+
+        // Enable scrolling after first 20 frames (quick on any connection)
+        if (loaded >= 20 && !scrollEnabledRef.current) {
+          scrollEnabledRef.current = true;
+          setReady(true);
+        }
+
         if (loaded >= TOTAL_FRAMES) setReady(true);
       };
       img.onerror = () => {
         loaded++;
+        loadedCountRef.current = loaded;
         setLoadProgress(loaded / TOTAL_FRAMES);
+
+        if (loaded >= 20 && !scrollEnabledRef.current) {
+          scrollEnabledRef.current = true;
+          setReady(true);
+        }
         if (loaded >= TOTAL_FRAMES) setReady(true);
       };
     };
 
-    // First 5 frames immediately
-    for (let i = 1; i <= 5; i++) {
+    // Start loading all frames
+    for (let i = 1; i <= TOTAL_FRAMES; i++) {
       preloadFrame(i);
     }
 
-    // Rest in batches of 20 with small delay
-    const BATCH_SIZE = 20;
-    const BATCH_DELAY = 50;
-    let batchIndex = 6;
-
-    const loadBatch = () => {
-      const end = Math.min(batchIndex + BATCH_SIZE - 1, TOTAL_FRAMES);
-      for (let i = batchIndex; i <= end; i++) {
-        preloadFrame(i);
-      }
-      batchIndex = end + 1;
-      if (batchIndex <= TOTAL_FRAMES) {
-        setTimeout(loadBatch, BATCH_DELAY);
-      }
-    };
-
-    setTimeout(loadBatch, BATCH_DELAY);
     imagesRef.current = imgs;
   }, []);
 
-  // Frame scrubbing — use ScrollTrigger's RAF loop (batches reads, avoids layout thrashing)
-  const updateFrame = useCallback(() => {
-    if (!imagesRef.current.length) return;
-
-    const section = sectionRef.current;
-    if (!section) return;
-
-    // Use refs to avoid stale closure — values updated by useEffect
-    const sectionHeight = cachedHeightRef.current ?? section.offsetHeight;
-    const viewportHeight = cachedViewportRef.current ?? window.innerHeight;
-    const scrollableDistance = sectionHeight - viewportHeight;
-
-    const sectionTop = section.getBoundingClientRect().top;
-    const scrolled = Math.max(0, -sectionTop);
-    const progress = Math.min(1, scrolled / scrollableDistance);
-
-    const frame = Math.floor(progress * (TOTAL_FRAMES - 1));
-    if (imgRef.current) {
-      const targetImg = imagesRef.current[frame];
-      if (targetImg && imgRef.current.src !== targetImg.src) {
-        imgRef.current.src = targetImg.src;
-      }
-    }
-    if (progressRef.current) {
-      progressRef.current.style.height = `${progress * 100}%`;
-    }
-  }, []);
-
-  const onScroll = useCallback(() => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(updateFrame);
-  }, [updateFrame]);
-
+  // Ultra-smooth frame scrubbing — direct scroll sync, no RAF delay
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !sectionRef.current || !imgRef.current) return;
 
     const section = sectionRef.current;
-    if (!section) return;
+    const img = imgRef.current;
 
-    imgRef.current.src = imagesRef.current[0].src;
+    // Preload first frame
+    img.src = imagesRef.current[0]?.src || '';
+    sectionHeightRef.current = section.offsetHeight;
 
-    // Initialize cached refs
-    cachedHeightRef.current = section.offsetHeight;
-    cachedViewportRef.current = window.innerHeight;
+    const updateFrame = () => {
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const scrollableDistance = section.offsetHeight - viewportHeight;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          isInViewRef.current = entry.isIntersecting;
-        });
-      },
-      { threshold: 0 }
-    );
-    observer.observe(section);
+      // Calculate progress: 0 when container top hits viewport top, 1 when bottom
+      const progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+      // Get the maximum available frame (handles partial loading)
+      const maxAvailableFrame = Math.min(loadedCountRef.current, TOTAL_FRAMES - 1);
+      const frame = Math.min(maxAvailableFrame, Math.floor(progress * TOTAL_FRAMES));
 
-    const onResize = () => {
-      cachedHeightRef.current = section.offsetHeight;
-      cachedViewportRef.current = window.innerHeight;
-      updateFrame();
+      if (frame !== currentFrameRef.current && imagesRef.current[frame]) {
+        currentFrameRef.current = frame;
+        img.src = imagesRef.current[frame].src;
+        if (progressRef.current) {
+          progressRef.current.style.height = `${progress * 100}%`;
+        }
+      }
     };
-    window.addEventListener('resize', onResize, { passive: true });
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => {
-        cachedHeightRef.current = section.offsetHeight;
-        cachedViewportRef.current = window.innerHeight;
-        updateFrame();
-      }, 100);
-    });
 
+    // Use Lenis scroll event directly for smoothest sync
+    const lenis = window.__LENIS__;
+    if (lenis) {
+      lenis.on('scroll', updateFrame);
+    } else {
+      window.addEventListener('scroll', updateFrame, { passive: true });
+    }
+
+    // Initial update
     updateFrame();
 
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    const handleResize = () => {
+      sectionHeightRef.current = section.offsetHeight;
+      updateFrame();
     };
-  }, [ready, onScroll, updateFrame]);
+    window.addEventListener('resize', handleResize, { passive: true });
 
-  // Phase animations — no pin, just scrub on scroll
+    return () => {
+      if (lenis) {
+        lenis.off('scroll', updateFrame);
+      } else {
+        window.removeEventListener('scroll', updateFrame);
+      }
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [ready]);
+
+  // Phase animations — optimized scroll sync
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || !sectionRef.current) return;
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
       || window.matchMedia('(max-width: 768px)').matches;
-    const scrubVal = isMobile ? 1.8 : 1.2;
     const endDistance = window.innerHeight * (isMobile ? 3 : 5);
 
     const ctx = gsap.context(() => {
@@ -171,27 +145,23 @@ export default function FooterHero() {
           trigger: sectionRef.current,
           start: 'top top',
           end: `+=${endDistance}`,
-          scrub: scrubVal,
+          scrub: true,
           pin: false,
-          anticipatePin: 1,
         },
       });
 
-      // Phase 1: Top right
       if (phase1Ref.current) {
         gsap.set(phase1Ref.current, { opacity: 0, x: 60, y: -30 });
         tl.to(phase1Ref.current, { opacity: 1, x: 0, y: 0, duration: 0.8, ease: 'power3.out' }, 0);
         tl.to(phase1Ref.current, { opacity: 0, x: -40, y: -20, duration: 0.6, ease: 'power2.in' }, 1.1);
       }
 
-      // Phase 2: Bottom left
       if (phase2Ref.current) {
         gsap.set(phase2Ref.current, { opacity: 0, x: -60, y: 30 });
         tl.to(phase2Ref.current, { opacity: 1, x: 0, y: 0, duration: 0.8, ease: 'power3.out' }, 1.3);
         tl.to(phase2Ref.current, { opacity: 0, y: 20, duration: 0.6, ease: 'power2.in' }, 3.0);
       }
 
-      // Phase 3: Center
       if (phase3Ref.current) {
         gsap.set(phase3Ref.current, { opacity: 0, y: 40, scale: 0.95 });
         tl.to(phase3Ref.current, { opacity: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out' }, 3.2);

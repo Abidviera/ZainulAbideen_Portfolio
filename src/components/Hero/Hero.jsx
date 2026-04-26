@@ -3,37 +3,51 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './Hero.css';
 
+// Check for reduced motion preference
+const prefersReducedMotion = () =>
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function useMagneticStrength(strength = 0.4) {
   const ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
+  const rafRef = useRef(null);
 
   const handleMouseMove = useCallback((e) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = e.clientX - cx;
-    const dy = e.clientY - cy;
-    gsap.to(ref.current, {
-      x: dx * strength,
-      y: dy * strength,
-      duration: 0.4,
-      ease: 'power3.out',
+    if (!ref.current || prefersReducedMotion()) return;
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      ref.current.style.transform = `translate(${dx * strength}px, ${dy * strength}px)`;
     });
   }, [strength]);
 
   const handleMouseLeave = useCallback(() => {
-    gsap.to(ref.current, {
-      x: 0,
-      y: 0,
-      duration: 0.6,
-      ease: 'elastic.out(1, 0.5)',
-    });
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (ref.current) {
+      ref.current.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      ref.current.style.transform = 'translate(0, 0)';
+      setTimeout(() => {
+        if (ref.current) ref.current.style.transition = '';
+      }, 600);
+    }
     setIsHovered(false);
   }, []);
 
   const handleMouseEnter = useCallback(() => {
     setIsHovered(true);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   return { ref, handleMouseMove, handleMouseLeave, handleMouseEnter, isHovered };
@@ -61,40 +75,46 @@ export default function Hero() {
   const cardsRef = useRef([]);
   const introRef = useRef(null);
   const bentoGridRef = useRef(null);
+  const rafRef = useRef(null);
+  const isTouchRef = useRef(false);
 
   const primaryBtn = useMagneticStrength(0.3);
   const ghostBtn = useMagneticStrength(0.3);
 
-  const handleMouseMove = useCallback((e) => {
-    if (!bentoRef.current) return;
-    const rect = bentoRef.current.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dx = (e.clientX - cx) / rect.width;
-    const dy = (e.clientY - cy) / rect.height;
+  // Detect touch device
+  useEffect(() => {
+    isTouchRef.current = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  }, []);
 
-    cardsRef.current.forEach((card, i) => {
-      if (!card) return;
-      const intensity = 10 - i * 1.5;
-      gsap.to(card, {
-        rotateY: dx * intensity,
-        rotateX: -dy * intensity,
-        duration: 0.8,
-        ease: 'power3.out',
-        transformPerspective: 800,
+  const handleMouseMove = useCallback((e) => {
+    if (!bentoRef.current || prefersReducedMotion() || isTouchRef.current) return;
+
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      if (!bentoRef.current) return;
+      const rect = bentoRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = (e.clientX - cx) / rect.width;
+      const dy = (e.clientY - cy) / rect.height;
+
+      cardsRef.current.forEach((card, i) => {
+        if (!card) return;
+        const intensity = 10 - i * 1.5;
+        card.style.transform = `perspective(800px) rotateY(${dx * intensity}deg) rotateX(${-dy * intensity}deg)`;
       });
     });
   }, []);
 
   const handleMouseLeave = useCallback(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     cardsRef.current.forEach((card) => {
       if (!card) return;
-      gsap.to(card, {
-        rotateY: 0,
-        rotateX: 0,
-        duration: 1,
-        ease: 'elastic.out(1, 0.5)',
-      });
+      card.style.transition = 'transform 1s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      card.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg)';
+      setTimeout(() => {
+        if (card) card.style.transition = '';
+      }, 1000);
     });
   }, []);
 
@@ -166,7 +186,10 @@ export default function Hero() {
       }
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      ctx.revert();
+    };
   }, []);
 
   return (

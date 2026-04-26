@@ -5,52 +5,86 @@ import { fileURLToPath } from 'url';
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
+// Mobile-optimized widths for different device tiers
+const MOBILE_WIDTHS = {
+  mobile: 640,    // Small phones
+  tablet: 1080,   // Tablets
+};
+
 const CONVERSIONS = [
-  { input: 'public/herosection', output: 'public/herosection/webp', pattern: /ezgif-frame-(\d+)\.png/ },
-  { input: 'public/footerhero', output: 'public/footerhero/webp', pattern: /ezgif-frame-(\d+)\.png/ },
+  {
+    input: 'public/herosection',
+    output: 'public/herosection/webp',
+    pattern: /ezgif-frame-(\d+)\.png/,
+    widths: { desktop: 1920, ...MOBILE_WIDTHS },
+    quality: { desktop: 80, mobile: 70, tablet: 75 },
+  },
+  {
+    input: 'public/footerhero',
+    output: 'public/footerhero/webp',
+    pattern: /ezgif-frame-(\d+)\.png/,
+    widths: { desktop: 1920, ...MOBILE_WIDTHS },
+    quality: { desktop: 80, mobile: 70, tablet: 75 },
+  },
 ];
 
-async function convertFrame(inputPath, outputPath) {
+async function convertFrame(inputPath, outputPath, width, quality) {
   await mkdir(dirname(outputPath), { recursive: true });
   await sharp(inputPath)
-    .resize(1920, null, { withoutEnlargement: true })
-    .webp({ quality: 80 })
+    .resize(width, null, { withoutEnlargement: true })
+    .webp({ quality })
     .toFile(outputPath);
 }
 
 async function main() {
-  for (const { input, output, pattern } of CONVERSIONS) {
-    const inputDir = join(rootDir, input);
-    const outputDir = join(rootDir, output);
+  for (const config of CONVERSIONS) {
+    const inputDir = join(rootDir, config.input);
 
     try {
       const files = await readdir(inputDir);
-      const pngFiles = files.filter((f) => pattern.test(f));
+      const pngFiles = files.filter((f) => config.pattern.test(f));
 
-      console.log(`Converting ${pngFiles.length} frames in ${input}...`);
+      console.log(`\nProcessing ${pngFiles.length} frames from ${config.input}...`);
+
+      // Create output directories for each size
+      for (const size of Object.keys(config.widths)) {
+        const outputDir = join(rootDir, `${config.output}-${size}`);
+        await mkdir(outputDir, { recursive: true });
+      }
 
       let count = 0;
       for (const file of pngFiles) {
-        const match = file.match(pattern);
+        const match = file.match(config.pattern);
         if (!match) continue;
         const num = match[1].padStart(3, '0');
         const inputPath = join(inputDir, file);
-        const outputPath = join(outputDir, `frame-${num}.webp`);
-        await convertFrame(inputPath, outputPath);
+
+        // Generate frames at each size
+        for (const [size, width] of Object.entries(config.widths)) {
+          const quality = config.quality[size] || 80;
+          const outputPath = join(
+            rootDir,
+            `${config.output}-${size}`,
+            `frame-${num}.webp`
+          );
+          await convertFrame(inputPath, outputPath, width, quality);
+        }
+
         count++;
-        if (count % 50 === 0) {
-          console.log(`  ${count}/${pngFiles.length} converted`);
+        if (count % 20 === 0) {
+          console.log(`  ${count}/${pngFiles.length} frames processed`);
         }
       }
-      console.log(`  Done: ${count} WebP files in ${output}`);
+      console.log(`  Done: ${count} frames at ${Object.entries(config.widths).map(([k, v]) => `${k}=${v}px`).join(', ')}`);
     } catch (err) {
       if (err.code === 'ENOENT') {
-        console.log(`Skipping ${input} - directory not found`);
+        console.log(`Skipping ${config.input} - directory not found`);
       } else {
         throw err;
       }
     }
   }
+  console.log('\nFrame conversion complete!');
 }
 
 main().catch((err) => {

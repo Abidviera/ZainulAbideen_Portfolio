@@ -2,6 +2,7 @@
 .footer-hero-section {
   position: relative;
   height: 600vh;
+  contain: layout style;
 }
 
 .footer-hero-sticky {
@@ -10,6 +11,7 @@
   width: 100%;
   height: 100svh;
   overflow: hidden;
+  contain: layout style;
 }
 
 .footer-hero-img {
@@ -25,6 +27,18 @@
   will-change: contents;
   transform: translateZ(0);
   backface-visibility: hidden;
+}
+
+/* Mobile performance: reduce motion complexity */
+@media (prefers-reduced-motion: reduce) {
+  .footer-hero-section {
+    height: auto;
+  }
+  .footer-hero-sticky {
+    position: relative;
+    height: auto;
+    min-height: 100svh;
+  }
 }
 
 /* ── Gradients ───────────────────────────────────────────────── */
