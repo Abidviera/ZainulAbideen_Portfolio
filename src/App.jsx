@@ -13,12 +13,14 @@ import Experience from './components/Experience/Experience';
 import Expertise from './components/Expertise/Expertise';
 import FooterHero from './components/FooterHero/FooterHero';
 import Hero from './components/Hero/Hero';
+import { LinkedInSection } from './components/LinkedInSection/LinkedInSection';
 import Marquee from './components/Marquee/Marquee';
 import Navbar from './components/Navbar/Navbar';
 import ScrollHero from './components/ScrollHero/ScrollHero';
 import Services from './components/Services/Services';
 import Stats from './components/Stats/Stats';
 import Work from './components/Work/Work';
+import { SplineSceneBasic } from './components/ui/spline-demo';
 
 const ProjectDetail = lazy(() => import('./components/Work/ProjectDetail'));
 const FloatingActions = lazy(() => import('./components/FloatingActions/FloatingActions'));
@@ -121,6 +123,8 @@ function HomePage({ greetingDone, setGreetingDone }) {
     <>
       <ScrollHero greetingDone={greetingDone} setGreetingDone={setGreetingDone} />
       <Hero />
+      <LinkedInSection />
+      <SplineSceneBasic />
       <Marquee />
       <About />
       <Stats />

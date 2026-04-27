@@ -1,3 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(222.2 84% 4.9%);
+  --color-primary: hsl(222.2 47.4% 11.2%);
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(210 40% 96.1%);
+  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-muted: hsl(210 40% 96.1%);
+  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --color-accent: hsl(210 40% 96.1%);
+  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(214.3 31.8% 91.4%);
+  --color-input: hsl(214.3 31.8% 91.4%);
+  --color-ring: hsl(222.2 84% 4.9%);
+  --radius-lg: 0.75rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.75rem;
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 222.2 84% 4.9%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 212.7 26.8% 83.9%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
 /* ── Apple Design Language — Light Theme ─────────────────────────────── */
 :root {
   /* Colors — Apple System Palette */
@@ -3527,21 +3608,78 @@ img, video { display: block; max-width: 100%; }
 .reveal {
   opacity: 0;
   transform: translateY(28px);
+  contain: layout style;
 }
 
 .reveal-scale {
   opacity: 0;
   transform: scale(0.94);
+  contain: layout style;
 }
 
 .reveal-left {
   opacity: 0;
   transform: translateX(-32px);
+  contain: layout style;
 }
 
 .reveal-right {
   opacity: 0;
   transform: translateX(32px);
+  contain: layout style;
+}
+
+/* ── GPU Acceleration Hints ──────────────────────────────────────── */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+/* ── Performance Critical Path ───────────────────────────────────── */
+.perf-critical {
+  contain: strict;
+  content-visibility: auto;
+}
+
+.perf-layout {
+  contain: layout;
+}
+
+.perf-paint {
+  contain: paint;
+}
+
+/* ── Scroll Animation Performance ─────────────────────────────────── */
+.scroll-animated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.scroll-smooth {
+  -webkit-font-smoothing: subpixel-antialiased;
+  text-rendering: optimizeSpeed;
+}
+
+/* ── Debounced Transitions ────────────────────────────────────────── */
+.debounced-transition {
+  transition-duration: 0.1ms !important;
+}
+
+/* ── Video Performance ────────────────────────────────────────────── */
+video {
+  contain: content;
+  will-change: transform;
+}
+
+video::-webkit-media-text-track-container {
+  contain: strict;
 }
 
 /* Clip-path reveal — element wipes in from bottom */
@@ -3644,6 +3782,23 @@ img, video { display: block; max-width: 100%; }
 }
 
 /* ScrollHero component styles are in its own component CSS */
+
+/* HOMIE text gradient based on theme */
+.homie-text {
+  /* Day theme: dark/black gradient */
+  background: linear-gradient(135deg, #1d1d1f 0%, #3a3a3c 50%, #1d1d1f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Night theme: white */
+[data-theme="dark"] .homie-text {
+  background: linear-gradient(135deg, #ffffff 0%, #e5e5e5 50%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
 
 .frame-counter {
   position: absolute;
@@ -3806,4 +3961,39 @@ img, video { display: block; max-width: 100%; }
     /* Show static first frame instead of animating */
     position: static !important;
   }
+}
+
+/* Loader animation for SplineScene */
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-bottom-color: #fff;
+  border-radius: 50%;
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Spotlight animation */
+@keyframes spotlight {
+  0%, 100% {
+    opacity: 0;
+    transform: translate(-30%, -30%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-30%, -30%) scale(1.1);
+  }
+}
+
+.animate-spotlight {
+  animation: spotlight 2s ease-in-out infinite;
 }

@@ -13,8 +13,8 @@ export default function Marquee() {
   const items = [...marqueeItems, ...marqueeItems];
 
   return (
-    <div className="marquee-section">
-      <div className="marquee-track">
+    <div className="marquee-section" style={{ contain: 'layout paint' }}>
+      <div className="marquee-track gpu-accelerated">
         {items.map((item, i) => (
           <div key={i} className="marquee-item">
             <span className="marquee-sep" />
