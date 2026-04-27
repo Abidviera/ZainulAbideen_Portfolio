@@ -119,9 +119,9 @@ function HomePage({ greetingDone, setGreetingDone }) {
       <LinkedInSection />
      
       <Marquee />
-       <Suspense fallback={<div className="w-full h-[500px]" aria-hidden="true" />}>
+       {/* <Suspense fallback={<div className="w-full h-[500px]" aria-hidden="true" />}>
         <SplineSceneBasic />
-      </Suspense>
+      </Suspense> */}
       <About />
       <Stats />
       <Services />
