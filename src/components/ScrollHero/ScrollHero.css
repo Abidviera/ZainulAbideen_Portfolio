@@ -23,7 +23,8 @@
   object-position: center;
   z-index: 0;
   display: block;
-  will-change: contents;
+  /* REMOVED will-change: contents — it causes layer explosion with image swaps */
+  /* <img> elements are already GPU-composited by default */
   transform: translateZ(0);
   backface-visibility: hidden;
 }

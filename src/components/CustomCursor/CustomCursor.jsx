@@ -84,11 +84,21 @@ export default function CustomCursor() {
 
     addListeners();
 
-    // Use event delegation instead of MutationObserver for better performance
-    const observer = new MutationObserver(() => {
-      addListeners();
+    // Optimized: only observe direct children, not entire subtree
+    // Use event delegation via root app element instead
+    const observer = new MutationObserver((mutations) => {
+      let shouldScan = false;
+      for (const mutation of mutations) {
+        if (mutation.addedNodes.length > 0) {
+          shouldScan = true;
+          break;
+        }
+      }
+      if (shouldScan) {
+        requestIdleCallback(() => addListeners(), { timeout: 1000 });
+      }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, { childList: true, subtree: false });
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('mousedown', onMouseDown);

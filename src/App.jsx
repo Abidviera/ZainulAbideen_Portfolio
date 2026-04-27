@@ -1,8 +1,8 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import Lenis from 'lenis';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { initLenis, destroyLenis } from './lib/lenis';
 import './App.css';
 
 import About from './components/About/About';
@@ -20,10 +20,12 @@ import ScrollHero from './components/ScrollHero/ScrollHero';
 import Services from './components/Services/Services';
 import Stats from './components/Stats/Stats';
 import Work from './components/Work/Work';
-import { SplineSceneBasic } from './components/ui/spline-demo';
 
 const ProjectDetail = lazy(() => import('./components/Work/ProjectDetail'));
 const FloatingActions = lazy(() => import('./components/FloatingActions/FloatingActions'));
+const SplineSceneBasic = lazy(() =>
+  import('./components/ui/spline-demo').then((module) => ({ default: module.SplineSceneBasic }))
+);
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,15 +35,6 @@ ScrollTrigger.defaults({
   fastScrollEnd: true,
   preventOverlaps: true,
 });
-
-// Kill all ScrollTriggers on page hide to save memory
-if (typeof document !== 'undefined') {
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      ScrollTrigger.getAll().forEach(t => t.scroller.scroll(0, 0));
-    }
-  });
-}
 
 // Scroll restoration on route change
 function ScrollRestore() {
@@ -124,8 +117,11 @@ function HomePage({ greetingDone, setGreetingDone }) {
       <ScrollHero greetingDone={greetingDone} setGreetingDone={setGreetingDone} />
       <Hero />
       <LinkedInSection />
-      <SplineSceneBasic />
+     
       <Marquee />
+       <Suspense fallback={<div className="w-full h-[500px]" aria-hidden="true" />}>
+        <SplineSceneBasic />
+      </Suspense>
       <About />
       <Stats />
       <Services />
@@ -184,63 +180,94 @@ function HomePage({ greetingDone, setGreetingDone }) {
 }
 
 function App() {
-  const lenisRef = useRef(null);
   const [greetingDone, setGreetingDone] = useState(false);
 
   useEffect(() => {
-    // Scroll progress bar
+    // Initialize Lenis using the centralized library
+    const lenis = initLenis();
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SCROLL PROGRESS BAR — Direct DOM manipulation for performance
+    // ═══════════════════════════════════════════════════════════════════
+    //
+    // We manipulate the DOM directly instead of using React state.
+    // This avoids unnecessary re-renders on every scroll tick.
     const progressBar = document.createElement('div');
     progressBar.className = 'scroll-progress-bar';
+    progressBar.style.willChange = 'transform';
+    progressBar.style.transform = 'translateZ(0)';
     document.body.appendChild(progressBar);
 
-    const lenis = new Lenis({
-      // Ultra-responsive configuration for feather-like scrolling
-      lerp: 0.05,
-      duration: 0.8,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
-      infinite: false,
-      normalizeWheel: true,
-      syncTouch: false,
-    });
-    lenisRef.current = lenis;
-    window.__LENIS__ = lenis;
+    // ═══════════════════════════════════════════════════════════════════
+    // RAF-BATCHED PROGRESS UPDATE — Prevents layout thrashing
+    // ═══════════════════════════════════════════════════════════════════
+    //
+    // Instead of updating the DOM on every scroll event,
+    // we batch updates using requestAnimationFrame.
+    // This ensures the browser only paints once per frame.
+    let rafId = null;
+    let queuedProgress = 0;
+    let lastAppliedProgress = -1;
 
-    lenis.on('scroll', ({ progress }) => {
-      ScrollTrigger.update();
-      progressBar.style.transform = `scaleX(${progress})`;
-    });
+    const updateProgress = ({ progress }) => {
+      queuedProgress = progress;
 
-    const updateLenis = (time) => {
-      lenis.raf(time * 1000);
+      // Coalesce many scroll events into one paint-aligned update.
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (queuedProgress === lastAppliedProgress) return;
+        lastAppliedProgress = queuedProgress;
+        // Direct style manipulation — no React re-render
+        progressBar.style.transform = `scaleX(${queuedProgress}) translateZ(0)`;
+      });
     };
-    gsap.ticker.add(updateLenis);
 
-    // Disable lag smoothing for consistent 60fps
-    gsap.ticker.lagSmoothing(0);
+    // Attach progress listener (separate from ScrollTrigger update)
+    lenis.on('scroll', updateProgress);
 
-    // Performance: limit ScrollTrigger refresh calls
-    let resizeTimeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
+    // ═══════════════════════════════════════════════════════════════════
+    // RESIZE OBSERVER — Better than window resize event
+    // ═══════════════════════════════════════════════════════════════════
+    //
+    // ResizeObserver fires more predictably and can observe
+    // specific elements, not just the window.
+    const ro = new ResizeObserver(() => {
+      lenis.resize();
+      // Only refresh if ScrollTrigger has active triggers to avoid "Invalid scope" warnings
+      if (ScrollTrigger.getAll().length > 0) {
         ScrollTrigger.refresh();
-      }, 100);
-    };
-    window.addEventListener('resize', handleResize, { passive: true });
+      }
+    });
+    ro.observe(document.body);
+
     document.documentElement.classList.add('lenis');
 
+    // ═══════════════════════════════════════════════════════════════════
+    // CLEANUP — Proper memory management
+    // ═══════════════════════════════════════════════════════════════════
     return () => {
-      clearTimeout(resizeTimeout);
-      window.removeEventListener('resize', handleResize);
-      gsap.ticker.remove(updateLenis);
-      lenis.destroy();
-      lenisRef.current = null;
-      window.__LENIS__ = null;
-      document.documentElement.classList.remove('lenis');
+      // Remove progress listener first
+      lenis.off('scroll', updateProgress);
+
+      // Disconnect ResizeObserver
+      ro.disconnect();
+
+      // Cancel pending RAF
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+
+      // Remove progress bar
       progressBar.remove();
+
+      // Remove lenis class
+      document.documentElement.classList.remove('lenis');
+
+      // Destroy Lenis via centralized function
+      destroyLenis();
     };
   }, []);
 

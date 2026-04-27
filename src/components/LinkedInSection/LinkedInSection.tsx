@@ -1,12 +1,18 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, memo } from 'react'
 import { AnimatedText } from '../AnimatedText/AnimatedText'
 
-export function LinkedInSection() {
+export const LinkedInSection = memo(function LinkedInSection() {
   const [isVisible, setIsVisible] = useState(false)
-  const [scrollProgress, setScrollProgress] = useState(0)
   const sectionRef = useRef<HTMLElement>(null)
-  const scrollStartY = useRef<number | null>(null)
-  const sectionWasVisible = useRef(false)
+  const sectionTopRef = useRef(0)
+
+  // Refs for direct DOM manipulation (avoids React re-renders)
+  const scaleRef = useRef<HTMLDivElement>(null)
+  const nameTextRef = useRef<HTMLDivElement>(null)
+  const getCurrentScrollY = () => {
+    const lenis = (window as typeof window & { __LENIS__?: { scroll?: number } }).__LENIS__
+    return typeof lenis?.scroll === 'number' ? lenis.scroll : window.scrollY
+  }
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100)
@@ -17,83 +23,108 @@ export function LinkedInSection() {
     const section = sectionRef.current
     if (!section) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            scrollStartY.current = window.scrollY
-            sectionWasVisible.current = true
-          }
-        })
-      },
-      { threshold: 0 }
-    )
+    const updateSectionTop = () => {
+      const rect = section.getBoundingClientRect()
+      sectionTopRef.current = rect.top + getCurrentScrollY()
+    }
 
-    observer.observe(section)
-    return () => observer.disconnect()
+    updateSectionTop()
+
+    const ro = new ResizeObserver(() => {
+      updateSectionTop()
+    })
+    ro.observe(section)
+
+    window.addEventListener('resize', updateSectionTop, { passive: true })
+    window.addEventListener('orientationchange', updateSectionTop, { passive: true })
+
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', updateSectionTop)
+      window.removeEventListener('orientationchange', updateSectionTop)
+    }
   }, [])
 
   useEffect(() => {
-    let rafId: number
-    let currentProgress = 0
-    const scrollThreshold = 800
+    let rafId: number | null = null
+    let latestScrollY = getCurrentScrollY()
+    let lastProgress = -1
+    const scrollThreshold = 900
+    const maxScroll = 400
 
-    const handleScroll = () => {
-      if (scrollStartY.current === null || !sectionWasVisible.current) {
-        return
+    const applyProgress = (progress: number) => {
+      const easeOutQuad = (t: number) => t * (2 - t)
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+
+      // Direct DOM manipulation - NO React re-renders
+      if (scaleRef.current) {
+        const scale = 1 - easeOutQuad(progress) * 0.15
+        const borderRadius = easeOutCubic(progress) * 48
+        const heightVh = 100 - easeOutQuad(progress) * 37.5
+
+        scaleRef.current.style.transform = `scale3d(${scale}, ${scale}, 1)`
+        scaleRef.current.style.borderRadius = `${borderRadius}px`
+        scaleRef.current.style.height = `${heightVh}vh`
       }
 
-      const scrolledPastSection = window.scrollY - scrollStartY.current
-
-      if (scrolledPastSection < 0) {
-        return
+      if (nameTextRef.current) {
+        nameTextRef.current.style.transform = `translateY(${progress * 150}px)`
+        nameTextRef.current.style.opacity = `${1 - progress * 0.8}`
       }
-
-      const scrolledAfterThreshold = scrolledPastSection - scrollThreshold
-
-      if (scrolledAfterThreshold < 0) {
-        return
-      }
-
-      const maxScroll = 400
-      const targetProgress = Math.min(Math.max(scrolledAfterThreshold / maxScroll, 0), 1)
-
-      const smoothUpdate = () => {
-        currentProgress += (targetProgress - currentProgress) * 0.1
-        if (Math.abs(targetProgress - currentProgress) > 0.001) {
-          setScrollProgress(currentProgress)
-          rafId = requestAnimationFrame(smoothUpdate)
-        } else {
-          setScrollProgress(targetProgress)
-        }
-      }
-      cancelAnimationFrame(rafId)
-      smoothUpdate()
     }
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    const handleScroll = (event?: { scroll?: number }) => {
+      latestScrollY = typeof event?.scroll === 'number' ? event.scroll : getCurrentScrollY()
+      // Skip if RAF already scheduled
+      if (rafId !== null) {
+        return
+      }
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        // Deterministic scroll progress:
+        // starts after section enters viewport + threshold, reverses naturally on upward scroll.
+        const scrolledPastSectionEntry = latestScrollY - sectionTopRef.current + window.innerHeight
+        const targetProgress = Math.min(Math.max((scrolledPastSectionEntry - scrollThreshold) / maxScroll, 0), 1)
+        if (Math.abs(targetProgress - lastProgress) < 0.001) return
+
+        lastProgress = targetProgress
+        applyProgress(targetProgress)
+      })
+    }
+
+    const lenis = (window as typeof window & { __LENIS__?: { on?: (e: string, cb: (event?: { scroll?: number }) => void) => void, off?: (e: string, cb: (event?: { scroll?: number }) => void) => void } }).__LENIS__
+    if (lenis?.on && lenis?.off) {
+      lenis.on('scroll', handleScroll)
+    } else {
+      window.addEventListener('scroll', handleScroll, { passive: true })
+    }
+    // Sync initial state when mounting or returning to this route.
+    handleScroll({ scroll: getCurrentScrollY() })
+
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-      cancelAnimationFrame(rafId)
+      if (lenis?.on && lenis?.off) {
+        lenis.off('scroll', handleScroll)
+      } else {
+        window.removeEventListener('scroll', handleScroll)
+      }
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId)
+      }
     }
   }, [])
 
-  const easeOutQuad = (t: number) => t * (2 - t)
-  const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
-
-  const scale = 1 - easeOutQuad(scrollProgress) * 0.15
-  const borderRadius = easeOutCubic(scrollProgress) * 48
-  const heightVh = 100 - easeOutQuad(scrollProgress) * 37.5
-
   return (
-    <section ref={sectionRef} className="pt-32 pb-12 px-6 min-h-screen flex items-center justify-center relative overflow-hidden">
+    <section ref={sectionRef} className="pt-32 pb-12 px-6 min-h-screen flex items-center justify-center relative overflow-hidden contain-layout">
       <div className="absolute inset-0 top-0">
         <div
-          className="w-full will-change-transform overflow-hidden"
+          ref={scaleRef}
+          className="w-full overflow-hidden"
           style={{
-            transform: `scale3d(${scale}, ${scale}, 1)`,
-            borderRadius: `${borderRadius}px`,
-            height: `${heightVh}vh`,
+            transform: 'scale3d(1, 1, 1)',
+            borderRadius: '0px',
+            height: '100vh',
+            willChange: 'transform, border-radius, height',
           }}
         >
           <video autoPlay loop muted playsInline className="w-full h-full object-cover" src="/images/abidtyping.webm" />
@@ -101,15 +132,17 @@ export function LinkedInSection() {
       </div>
 
       <div
+        ref={nameTextRef}
         className="absolute bottom-0 left-0 right-0 w-full overflow-hidden pointer-events-none z-[5] flex items-end justify-center"
         style={{
-          transform: `translateY(${scrollProgress * 150}px)`,
-          opacity: 1 - scrollProgress * 0.8,
+          transform: 'translateY(0px)',
+          opacity: 1,
           height: '100%',
+          willChange: 'transform, opacity',
         }}
       >
         <span className="block homie-text font-bold text-[28vw] sm:text-[25vw] md:text-[22vw] lg:text-[20vw] tracking-tighter select-none text-center leading-none">
-          HOMIE
+          ZAINUL
         </span>
       </div>
 
@@ -127,7 +160,7 @@ export function LinkedInSection() {
         <div className="flex flex-col items-center justify-center gap-8">
           <div className="relative">
             <div
-              className={`relative w-[234px] md:w-[281px] lg:w-[351px] will-change-transform transition-all duration-[1500ms] ease-out delay-500 ${
+              className={`relative w-[234px] md:w-[281px] lg:w-[351px] transition-all duration-[1500ms] ease-out delay-500 ${
                 isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-[400px]'
               }`}
             >
@@ -138,4 +171,4 @@ export function LinkedInSection() {
       </div>
     </section>
   )
-}
+})

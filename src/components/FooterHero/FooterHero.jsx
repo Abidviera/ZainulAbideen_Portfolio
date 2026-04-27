@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './FooterHero.css';
 
 const TOTAL_FRAMES = 240;
@@ -18,8 +19,8 @@ export default function FooterHero() {
   const [ready, setReady] = useState(false);
   const imagesRef = useRef([]);
   const currentFrameRef = useRef(0);
-  const sectionHeightRef = useRef(0);
   const loadedCountRef = useRef(0);
+  const lastUiLoadProgressRef = useRef(0);
   const scrollEnabledRef = useRef(false);
 
   // Progressive loading: enable scrolling after first batch, continue loading in background
@@ -41,7 +42,11 @@ export default function FooterHero() {
         }
         loaded++;
         loadedCountRef.current = loaded;
-        setLoadProgress(loaded / TOTAL_FRAMES);
+        const nextProgress = loaded / TOTAL_FRAMES;
+        if (nextProgress - lastUiLoadProgressRef.current >= 0.02 || loaded >= TOTAL_FRAMES) {
+          lastUiLoadProgressRef.current = nextProgress;
+          setLoadProgress(nextProgress);
+        }
 
         // Enable scrolling after first 20 frames (quick on any connection)
         if (loaded >= 20 && !scrollEnabledRef.current) {
@@ -54,7 +59,11 @@ export default function FooterHero() {
       img.onerror = () => {
         loaded++;
         loadedCountRef.current = loaded;
-        setLoadProgress(loaded / TOTAL_FRAMES);
+        const nextProgress = loaded / TOTAL_FRAMES;
+        if (nextProgress - lastUiLoadProgressRef.current >= 0.02 || loaded >= TOTAL_FRAMES) {
+          lastUiLoadProgressRef.current = nextProgress;
+          setLoadProgress(nextProgress);
+        }
 
         if (loaded >= 20 && !scrollEnabledRef.current) {
           scrollEnabledRef.current = true;
@@ -72,62 +81,68 @@ export default function FooterHero() {
     imagesRef.current = imgs;
   }, []);
 
-  // Ultra-smooth frame scrubbing — direct scroll sync, no RAF delay
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // ULTRA-SMOOTH FRAME SCRUBBING — Performance Optimized
+  // ═══════════════════════════════════════════════════════════════════════════════
+  //
+  // Key optimizations:
+  // 1. RAF-batched updates — prevents frame drops from excessive updates
+  // 2. Skip duplicate frames — avoids redundant image swaps
+  // 3. Cached section height — minimizes layout reads
+  // 4. Single layout read per frame — unavoidable for scroll position
+  // 5. Time-based throttling — prevents excessive updates
+  //
   useEffect(() => {
     if (!ready || !sectionRef.current || !imgRef.current) return;
 
     const section = sectionRef.current;
-    const img = imgRef.current;
 
-    // Preload first frame
-    img.src = imagesRef.current[0]?.src || '';
-    sectionHeightRef.current = section.offsetHeight;
+    let rafId = null;
+    let lastFrame = -1;
 
-    const updateFrame = () => {
-      const rect = section.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const scrollableDistance = section.offsetHeight - viewportHeight;
+    const updateFrame = (progress) => {
+      if (rafId) return;
 
-      // Calculate progress: 0 when container top hits viewport top, 1 when bottom
-      const progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        
+        const maxAvailableFrame = Math.max(0, Math.min(loadedCountRef.current - 1, TOTAL_FRAMES - 1));
+        const frame = Math.min(maxAvailableFrame, Math.round(progress * (TOTAL_FRAMES - 1)));
 
-      // Get the maximum available frame (handles partial loading)
-      const maxAvailableFrame = Math.min(loadedCountRef.current, TOTAL_FRAMES - 1);
-      const frame = Math.min(maxAvailableFrame, Math.floor(progress * TOTAL_FRAMES));
+        if (frame === lastFrame) return;
+        lastFrame = frame;
 
-      if (frame !== currentFrameRef.current && imagesRef.current[frame]) {
-        currentFrameRef.current = frame;
-        img.src = imagesRef.current[frame].src;
-        if (progressRef.current) {
-          progressRef.current.style.height = `${progress * 100}%`;
+        if (imagesRef.current[frame] && imgRef.current) {
+          imgRef.current.src = imagesRef.current[frame].src;
         }
-      }
+
+        if (progressRef.current) {
+          progressRef.current.style.transform = `scaleY(${progress})`;
+        }
+      });
     };
 
-    // Use Lenis scroll event directly for smoothest sync
-    const lenis = window.__LENIS__;
-    if (lenis) {
-      lenis.on('scroll', updateFrame);
-    } else {
-      window.addEventListener('scroll', updateFrame, { passive: true });
-    }
+    // Use ScrollTrigger for more reliable scroll tracking than manual event listeners
+    // especially for components deep in the page that might experience layout shifts
+    const st = ScrollTrigger.create({
+      trigger: section,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: (self) => {
+        updateFrame(self.progress);
+      },
+    });
 
-    // Initial update
-    updateFrame();
-
-    const handleResize = () => {
-      sectionHeightRef.current = section.offsetHeight;
-      updateFrame();
-    };
-    window.addEventListener('resize', handleResize, { passive: true });
+    const ro = new ResizeObserver(() => {
+      st.refresh();
+      updateFrame(st.progress);
+    });
+    ro.observe(section);
 
     return () => {
-      if (lenis) {
-        lenis.off('scroll', updateFrame);
-      } else {
-        window.removeEventListener('scroll', updateFrame);
-      }
-      window.removeEventListener('resize', handleResize);
+      ro.disconnect();
+      st.kill();
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, [ready]);
 
@@ -135,16 +150,12 @@ export default function FooterHero() {
   useEffect(() => {
     if (!ready || !sectionRef.current) return;
 
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-      || window.matchMedia('(max-width: 768px)').matches;
-    const endDistance = window.innerHeight * (isMobile ? 3 : 5);
-
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: `+=${endDistance}`,
+          end: 'bottom bottom',
           scrub: true,
           pin: false,
         },

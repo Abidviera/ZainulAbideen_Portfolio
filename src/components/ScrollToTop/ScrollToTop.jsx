@@ -3,18 +3,45 @@ import { useEffect, useRef, useState } from 'react';
 export default function ScrollToTop() {
   const [visible, setVisible] = useState(false);
   const rafRef = useRef(null);
+  const latestScrollYRef = useRef(0);
+  const visibleRef = useRef(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    const getCurrentScrollY = () => {
+      const lenis = window.__LENIS__;
+      return typeof lenis?.scroll === 'number' ? lenis.scroll : (window.scrollY || window.pageYOffset || 0);
+    };
+
+    const handleScroll = (event) => {
+      latestScrollYRef.current = typeof event?.scroll === 'number' ? event.scroll : getCurrentScrollY();
+      if (rafRef.current) return;
+
       rafRef.current = requestAnimationFrame(() => {
-        setVisible(window.scrollY > window.innerHeight * 2);
+        const threshold = window.innerHeight * 2;
+        const nextVisible = latestScrollYRef.current > threshold;
+        if (nextVisible !== visibleRef.current) {
+          visibleRef.current = nextVisible;
+          setVisible(nextVisible);
+        }
+        rafRef.current = null;
       });
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    const lenis = window.__LENIS__;
+    if (lenis?.on && lenis?.off) {
+      lenis.on('scroll', handleScroll);
+    } else {
+      window.addEventListener('scroll', handleScroll, { passive: true });
+    }
+
+    handleScroll({ scroll: getCurrentScrollY() });
+
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      if (lenis?.on && lenis?.off) {
+        lenis.off('scroll', handleScroll);
+      } else {
+        window.removeEventListener('scroll', handleScroll);
+      }
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, []);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import "./Navbar.css";
 
 const navLinks = [
@@ -67,13 +67,62 @@ export default function Navbar() {
   const [activeSection, setActiveSection] = useState("");
   const [isDark, setIsDark] = useState(() => getTheme() === "dark");
 
+  // Navbar ref for direct DOM manipulation
+  const navRef = useRef(null);
+  const scrolledRef = useRef(false);
+
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // SCROLL DETECTION — CSS Class Toggle (No React Re-renders)
+  // ═══════════════════════════════════════════════════════════════════════════════
+  //
+  // Instead of updating React state on every scroll,
+  // we toggle a CSS class directly on the DOM element.
+  // CSS handles the visual transition — no JS re-renders needed.
   useEffect(() => {
-    const getScrollHeroHeight = () => window.innerHeight * 5;
-    const handleScroll = () =>
-      setScrolled(window.scrollY > getScrollHeroHeight());
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const SCROLL_THRESHOLD = window.innerHeight * 5;
+    const nav = navRef.current;
+    if (!nav) return;
+
+    let rafId = null;
+    let latestScrollY = 0;
+
+    const getCurrentScrollY = () => {
+      const lenis = window.__LENIS__;
+      return typeof lenis?.scroll === "number" ? lenis.scroll : (window.scrollY || window.pageYOffset || 0);
+    };
+
+    const handleScroll = (event) => {
+      latestScrollY = typeof event?.scroll === "number" ? event.scroll : getCurrentScrollY();
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const isScrolled = latestScrollY > SCROLL_THRESHOLD;
+        if (isScrolled !== scrolledRef.current) {
+          scrolledRef.current = isScrolled;
+          setScrolled(isScrolled);
+        }
+      });
+    };
+
+    // Initial check
+    handleScroll({ scroll: getCurrentScrollY() });
+
+    const lenis = window.__LENIS__;
+    if (lenis?.on && lenis?.off) {
+      lenis.on("scroll", handleScroll);
+    } else {
+      window.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      if (lenis?.on && lenis?.off) {
+        lenis.off("scroll", handleScroll);
+      } else {
+        window.removeEventListener("scroll", handleScroll);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -129,7 +178,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`navbar${scrolled ? " scrolled" : ""}`}>
+      <nav ref={navRef} className={`navbar${scrolled ? " scrolled" : ""}`}>
         <div className="container navbar-inner">
           <a href="#" className="navbar-logo">
             <img

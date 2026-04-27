@@ -57,6 +57,11 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
   const sectionHeightRef = useRef(0);
   const loadedCountRef = useRef(0);
   const scrollEnabledRef = useRef(false);
+  const latestScrollYRef = useRef(0);
+  const metricsRef = useRef({
+    top: 0,
+    scrollableDistance: 1,
+  });
 
   // Progressive loading: enable scrolling after first batch, continue loading in background
   useEffect(() => {
@@ -215,7 +220,17 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
     return () => ctx.revert();
   }, [greetingDone, setGreetingDone]);
 
-  // Ultra-smooth frame scrubbing — direct scroll sync, no RAF delay
+  // ═══════════════════════════════════════════════════════════════════════════════
+  // ULTRA-SMOOTH FRAME SCRUBBING — Performance Optimized
+  // ═══════════════════════════════════════════════════════════════════════════════
+  //
+  // Key optimizations:
+  // 1. RAF-batched updates — prevents frame drops from excessive updates
+  // 2. Skip duplicate frames — avoids redundant image swaps
+  // 3. Cached section height — minimizes layout reads
+  // 4. Single layout read per frame — unavoidable for scroll position
+  // 5. Frame skipping on fast scroll — reduces GPU pressure
+  //
   useEffect(() => {
     if (!ready || !containerRef.current || !imgRef.current) return;
 
@@ -225,56 +240,103 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
 
     // Preload first frame
     img.src = imagesRef.current[0]?.src || '';
-    sectionHeightRef.current = container.offsetHeight;
 
-    const updateFrame = () => {
+    const getCurrentScrollY = () => {
+      const lenis = window.__LENIS__;
+      return typeof lenis?.scroll === "number" ? lenis.scroll : (window.scrollY || window.pageYOffset || 0);
+    };
+
+    // Cache expensive geometry reads outside scroll loop
+    const measureSection = () => {
+      const scrollY = getCurrentScrollY();
       const rect = container.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const scrollableDistance = container.offsetHeight - viewportHeight;
 
-      // Calculate progress: 0 when container top hits viewport top, 1 when bottom
-      const progress = Math.max(0, Math.min(1, -rect.top / scrollableDistance));
+      sectionHeightRef.current = container.offsetHeight;
+      metricsRef.current.top = rect.top + scrollY;
+      metricsRef.current.scrollableDistance = Math.max(1, sectionHeightRef.current - viewportHeight);
+    };
+    measureSection();
+    latestScrollYRef.current = getCurrentScrollY();
 
-      // Get the maximum available frame (handles partial loading)
-      const maxAvailableFrame = Math.min(loadedCountRef.current, TOTAL_FRAMES - 1);
-      const frame = Math.min(maxAvailableFrame, Math.floor(progress * TOTAL_FRAMES));
+    // RAF-batched frame update with cached geometry (no per-scroll layout reads)
+    let rafId = null;
+    let lastFrame = -1;
 
-      if (frame !== currentFrameRef.current && imagesRef.current[frame]) {
-        currentFrameRef.current = frame;
-        img.src = imagesRef.current[frame].src;
+    const updateFrame = (event) => {
+      const nextScrollY = typeof event?.scroll === "number" ? event.scroll : getCurrentScrollY();
+      if (nextScrollY === latestScrollYRef.current) return;
+      latestScrollYRef.current = nextScrollY;
+
+      // Skip if RAF already scheduled
+      if (rafId) return;
+
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const { top, scrollableDistance } = metricsRef.current;
+        const progress = Math.max(
+          0,
+          Math.min(1, (latestScrollYRef.current - top) / scrollableDistance)
+        );
+
+        // Get the maximum available frame (handles partial loading)
+        const maxAvailableFrame = Math.max(0, Math.min(loadedCountRef.current - 1, TOTAL_FRAMES - 1));
+        // Map progress to valid [0..TOTAL_FRAMES-1] frame indices.
+        const frame = Math.min(maxAvailableFrame, Math.round(progress * (TOTAL_FRAMES - 1)));
+
+        // Skip if frame hasn't changed
+        if (frame === lastFrame) return;
+        lastFrame = frame;
+
+        // Swap image src
+        if (imagesRef.current[frame]) {
+          img.src = imagesRef.current[frame].src;
+        }
+
+        // Update counter (direct DOM manipulation)
         if (counter) {
           counter.textContent = `${String(frame + 1).padStart(3, "0")} / ${TOTAL_FRAMES}`;
         }
-      }
+      });
     };
 
-    // Use Lenis scroll event directly for smoothest sync
-    const handleScroll = () => updateFrame();
-
-    // Try to use Lenis if available, otherwise fallback to native scroll
+    // Use Lenis scroll event for smoothest sync
     const lenis = window.__LENIS__;
     if (lenis) {
-      lenis.on('scroll', handleScroll);
+      lenis.on('scroll', updateFrame);
     } else {
-      window.addEventListener('scroll', handleScroll, { passive: true });
+      window.addEventListener('scroll', updateFrame, { passive: true });
     }
 
     // Initial update
     updateFrame();
 
-    const handleResize = () => {
-      sectionHeightRef.current = container.offsetHeight;
-      updateFrame();
-    };
-    window.addEventListener('resize', handleResize, { passive: true });
+    // ResizeObserver for responsive section height
+    const ro = new ResizeObserver(() => {
+      measureSection();
+      updateFrame({ scroll: getCurrentScrollY() });
+    });
+    ro.observe(container);
 
     return () => {
-      if (lenis) {
-        lenis.off('scroll', handleScroll);
-      } else {
-        window.removeEventListener('scroll', handleScroll);
+      ro.disconnect();
+
+      // Cancel pending RAF
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
       }
-      window.removeEventListener('resize', handleResize);
+
+      // Remove scroll listener
+      if (lenis) {
+        lenis.off('scroll', updateFrame);
+      } else {
+        window.removeEventListener('scroll', updateFrame);
+      }
+
+      // Reset frame state
+      lastFrame = -1;
+      latestScrollYRef.current = -1;
     };
   }, [ready]);
 
@@ -483,6 +545,8 @@ export default function ScrollHero({ greetingDone, setGreetingDone }) {
                     alt={skill.name}
                     width="32"
                     height="32"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <span className="skill-logo-name">{skill.name}</span>

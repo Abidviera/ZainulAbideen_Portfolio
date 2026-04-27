@@ -1,0 +1,267 @@
+/**
+ * src/styles/scroll-performance.css
+ *
+ * Critical scroll performance optimizations
+ * Import this early in your CSS chain
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   1. RESET BROWSER SCROLL INTERFERENCE
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   These properties prevent browsers from interfering with our smooth scroll:
+   - scroll-behavior: auto — Lenis handles smooth scrolling
+  - overflow-x: clip — prevents horizontal overflow without trapping scroll engine
+*/
+
+html {
+  scroll-behavior: auto !important;
+  overflow-x: clip;
+}
+
+body {
+  scroll-behavior: auto !important;
+  overflow-x: clip; /* NEVER overflow: hidden — kills Lenis on some browsers */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   2. GPU PROMOTION FOR ANIMATED ELEMENTS
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   These selectors promote elements to their own compositor layer:
+   - transform: translateZ(0) — forces GPU layer creation
+   - will-change: transform — hint to browser about upcoming animations
+   - backface-visibility: hidden — prevents unnecessary repaints
+
+   CRITICAL: will-change should only be on elements that ACTUALLY animate.
+   Overusing it causes memory pressure and GPU exhaustion.
+*/
+
+.gpu-promoted {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Elements that animate during scroll */
+[data-animate],
+.gsap-animated,
+.motion-element {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   3. CSS CONTAINMENT FOR HEAVY SECTIONS
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   contain: layout style paint — prevents style recalculations in one section
+   from affecting other sections. Critical for large portfolios.
+
+   content-visibility: auto — skips rendering for off-screen content.
+   Reduces initial render time significantly.
+*/
+
+.contain-all {
+  contain: layout style paint;
+}
+
+.contain-layout {
+  contain: layout style;
+}
+
+.contain-strict {
+  contain: strict;
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   4. SCROLL CONTAINER OPTIMIZATIONS
+   ═══════════════════════════════════════════════════════════════════════════════
+*/
+
+.scroll-container {
+  /* Promote to compositor layer */
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+.scroll-sticky {
+  position: sticky;
+  top: 0;
+  /* Ensure GPU promotion for sticky elements */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   5. MOBILE VIEWPORT FIX
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   100vh on iOS includes the address bar, causing layout jumps.
+   100dvh (dynamic viewport height) fixes this.
+*/
+
+.full-height {
+  height: 100dvh;
+  height: 100vh; /* Fallback */
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   6. TOUCH OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   touch-action: pan-y — allows vertical scroll, blocks horizontal
+   -webkit-tap-highlight-color: transparent — removes iOS tap highlight
+
+   These prevent 300ms tap delay on mobile.
+*/
+
+* {
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow horizontal scroll where needed */
+.scroll-x {
+  touch-action: pan-x;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   7. OFF-SCREEN OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   content-visibility: auto — browser skips rendering for off-screen sections
+   contain-intrinsic-size — reserves space to prevent layout shift
+*/
+
+.off-screen-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   8. FIXED POSITION ELEMENT OPTIMIZATION
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   Fixed elements can cause repaints on scroll. GPU promotion fixes this.
+*/
+
+.fixed-overlay {
+  position: fixed;
+  /* GPU promote fixed elements to prevent scroll repaints */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   9. IMAGE PERFORMANCE
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   Images in scroll containers should have these properties:
+   - decoding="async" — don't block main thread decoding
+   - will-change: opacity — only if fading in/out
+*/
+
+.scroll-image {
+  /* Don't promote images unnecessarily */
+  /* Browsers handle image compositing well by default */
+}
+
+.scroll-image-fade {
+  will-change: opacity;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.scroll-image-fade.loaded {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   10. REDUCED MOTION SUPPORT
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   Respect user preference for reduced motion.
+*/
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable scroll-driven animations */
+  .scroll-animated,
+  [data-scroll] {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   11. SCROLL PROGRESS BAR
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   Progress bar that follows scroll position.
+   GPU-optimized for 60fps updates.
+*/
+
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--teal) 100%);
+  transform-origin: left;
+  z-index: calc(var(--z-nav) + 1);
+  transform: scaleX(0);
+  /* Critical GPU hints */
+  transform: scaleX(0) translateZ(0);
+  will-change: transform;
+}
+
+@media (max-width: 768px) {
+  .scroll-progress-bar {
+    height: 3px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   12. PREVENT OVERSCROLL GLOW
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   Remove the blue overscroll glow on iOS Safari.
+*/
+
+html {
+  overscroll-behavior: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   13. SCROLLBAR CONCEALMENT
+   ═══════════════════════════════════════════════════════════════════════════════
+
+   Hide scrollbar while maintaining scroll functionality.
+   Works on all modern browsers.
+*/
+
+.scrollbar-hidden {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
