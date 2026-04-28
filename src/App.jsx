@@ -15,6 +15,7 @@ import FooterHero from './components/FooterHero/FooterHero';
 import Hero from './components/Hero/Hero';
 import { LinkedInSection } from './components/LinkedInSection/LinkedInSection';
 import Marquee from './components/Marquee/Marquee';
+import MatterPills from './components/MatterPills';
 import Navbar from './components/Navbar/Navbar';
 import ScrollHero from './components/ScrollHero/ScrollHero';
 import Services from './components/Services/Services';
@@ -117,6 +118,7 @@ function HomePage({ greetingDone, setGreetingDone }) {
       <ScrollHero greetingDone={greetingDone} setGreetingDone={setGreetingDone} />
       <Hero />
       <LinkedInSection />
+      <MatterPills />
      
       <Marquee />
        {/* <Suspense fallback={<div className="w-full h-[500px]" aria-hidden="true" />}>
