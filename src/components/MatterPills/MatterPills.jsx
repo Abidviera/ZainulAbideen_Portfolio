@@ -1,7 +1,28 @@
 import { useEffect, useRef } from 'react';
 import Matter from 'matter-js';
 
-const { Engine, Render, Runner, Events, MouseConstraint, Mouse, World, Bodies, Bounds } = Matter;
+const { Engine, Render, Runner, Events, MouseConstraint, Mouse, World, Bodies, Bounds, Body, Composite } = Matter;
+
+const skillLogos = [
+  { name: "React", src: "https://cdn.simpleicons.org/react" },
+  { name: "Angular", src: "https://cdn.simpleicons.org/angular" },
+  { name: "Ionic", src: "https://cdn.simpleicons.org/ionic" },
+  { name: "TypeScript", src: "https://cdn.simpleicons.org/typescript" },
+  { name: "NestJS", src: "https://cdn.simpleicons.org/nestjs" },
+  { name: "Node.js", src: "/skillLogos/Nodejs.png" },
+  { name: "C#", src: "/skillLogos/Csharp.webp" },
+  { name: "Azure", src: "/skillLogos/azure.webp" },
+  { name: "MongoDB", src: "https://cdn.simpleicons.org/mongodb" },
+  { name: "GitHub", src: "https://cdn.simpleicons.org/github" },
+  { name: "JavaScript", src: "https://cdn.simpleicons.org/javascript" },
+  { name: "HTML5", src: "https://cdn.simpleicons.org/html5" },
+  { name: "CSS3", src: "/skillLogos/css3.webp" },
+  { name: "Figma", src: "/skillLogos/figma.webp" },
+  { name: "Bootstrap", src: "https://cdn.simpleicons.org/bootstrap" },
+  { name: "ASP.NET", src: "/skillLogos/asp.net.webp" },
+  { name: ".NET MAUI", src: "/skillLogos/maui.webp" },
+  { name: "SQL Server", src: "/skillLogos/SQL SERVER.webp" },
+];
 
 const MatterPills = () => {
   const containerRef = useRef(null);
@@ -9,6 +30,7 @@ const MatterPills = () => {
   const renderRef = useRef(null);
   const runnerRef = useRef(null);
   const hasStartedRef = useRef(false);
+  const imageCacheRef = useRef({});
 
   const getThemeBackground = () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -24,12 +46,14 @@ const MatterPills = () => {
       if (hasStartedRef.current) return;
       hasStartedRef.current = true;
 
-      // create an engine
-      const engine = Engine.create();
+      // Create engine with better physics
+      const engine = Engine.create({
+        enableSleeping: false,
+      });
       engineRef.current = engine;
       const world = engine.world;
 
-      // create a renderer
+      // Renderer
       const containerWidth = container.offsetWidth || 800;
       const containerHeight = container.offsetHeight || 600;
 
@@ -46,140 +70,212 @@ const MatterPills = () => {
       });
       renderRef.current = render;
 
-      // create bounds
-      const themeBackground = getThemeBackground();
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const textColor = isDark ? '#ffffff' : '#000000';
+
+      // Physics options
+      const pillOptions = {
+        friction: 0.3,
+        frictionAir: 0.02,
+        restitution: 0.4,
+        frictionStatic: 0.5,
+      };
+
+      const circleOptions = {
+        friction: 0.3,
+        frictionAir: 0.02,
+        restitution: 0.5,
+        frictionStatic: 0.5,
+      };
+
+      // Walls
       const ground = Bodies.rectangle(
         containerWidth / 2 + 160,
         containerHeight + 80,
         containerWidth + 320,
         160,
-        { render: { fillStyle: 'transparent' }, isStatic: true }
+        { isStatic: true, render: { fillStyle: 'transparent' } }
       );
       const wallLeft = Bodies.rectangle(
         -80,
         containerHeight / 2,
         160,
         containerHeight,
-        { render: { fillStyle: 'transparent' }, isStatic: true }
+        { isStatic: true, render: { fillStyle: 'transparent' } }
       );
       const wallRight = Bodies.rectangle(
         containerWidth + 80,
         containerHeight / 2,
         160,
         1200,
-        { render: { fillStyle: 'transparent' }, isStatic: true }
+        { isStatic: true, render: { fillStyle: 'transparent' } }
       );
       const roof = Bodies.rectangle(
         containerWidth / 2 + 160,
         -80,
         containerWidth + 320,
         160,
-        { render: { fillStyle: 'transparent' }, isStatic: true }
+        { isStatic: true, render: { fillStyle: 'transparent' } }
       );
 
-      // object colors & variables
-      const border = 2;
+      // Radius for pill chamfer
       const radius = 20;
 
-      // create objects - art & design
-      const illustration = Bodies.rectangle(70, containerHeight * 0.5, 133, 40, {
+      // All pills - mixed positions
+      const react = Bodies.rectangle(80, containerHeight * 0.5, 90, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/RADmiFI.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'React',
+        render: { fillStyle: '#61dafb' },
+        ...pillOptions,
       });
-      const art = Bodies.rectangle(35, containerHeight * 0.46, 56, 40, {
+      const angular = Bodies.rectangle(200, containerHeight * 0.45, 105, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/NwQqeng.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'Angular',
+        render: { fillStyle: '#dd0031' },
+        ...pillOptions,
       });
-      const threeD = Bodies.rectangle(90, containerHeight * 0.46, 52, 40, {
+      const typescript = Bodies.rectangle(350, containerHeight * 0.55, 130, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/ptUWXgO.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'TypeScript',
+        render: { fillStyle: '#3178c6' },
+        ...pillOptions,
       });
-      const graphic = Bodies.rectangle(60, containerHeight * 0.42, 105, 40, {
+      const javascript = Bodies.rectangle(150, containerHeight * 0.35, 140, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/TyOmVtt.png', xScale: 0.5, yScale: 0.5 } },
-      });
-      const photo = Bodies.rectangle(50, containerHeight * 0.38, 86, 40, {
-        chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/tc3MsJP.png', xScale: 0.5, yScale: 0.5 } },
-      });
-
-      // video
-      const documentary = Bodies.rectangle(220, containerHeight * 0.54, 165, 40, {
-        chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/QYNTBNr.png', xScale: 0.5, yScale: 0.5 } },
-      });
-      const animation = Bodies.rectangle(200, containerHeight * 0.49, 128, 40, {
-        chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/rSnEY9Q.png', xScale: 0.5, yScale: 0.5 } },
-      });
-      const vintage = Bodies.rectangle(190, containerHeight * 0.44, 104, 40, {
-        chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/5BSBvSm.png', xScale: 0.5, yScale: 0.5 } },
-      });
-      const short = Bodies.rectangle(170, containerHeight * 0.39, 82, 40, {
-        chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/VEyrikN.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'JavaScript',
+        render: { fillStyle: '#f7df1e' },
+        ...pillOptions,
       });
 
-      // misc
-      const website = Bodies.rectangle(360, containerHeight * 0.42, 108, 40, {
+      const nestjs = Bodies.rectangle(420, containerHeight * 0.4, 95, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/hr9p4uV.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'NestJS',
+        render: { fillStyle: '#e0234e' },
+        ...pillOptions,
       });
-      const article = Bodies.rectangle(300, containerHeight * 0.38, 92, 40, {
+      const dotnet = Bodies.rectangle(280, containerHeight * 0.6, 95, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/n6TV7XG.png', xScale: 0.5, yScale: 0.5 } },
+        label: '.NET',
+        render: { fillStyle: '#512bd4' },
+        ...pillOptions,
       });
-      const music = Bodies.rectangle(400, containerHeight * 0.36, 86, 40, {
+      const nodejs = Bodies.rectangle(100, containerHeight * 0.65, 95, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/dax8MwT.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'Node.js',
+        render: { fillStyle: '#68a063' },
+        ...pillOptions,
       });
-      const star = Bodies.rectangle(80, containerHeight * 0.26, 42, 40, {
+      const csharp = Bodies.rectangle(500, containerHeight * 0.5, 90, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/C2qPMbB.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'C#',
+        render: { fillStyle: '#68217a' },
+        ...pillOptions,
       });
 
-      // about
-      const about = Bodies.rectangle(230, containerHeight * 0.14, 87, 40, {
+      const postgresql = Bodies.rectangle(180, containerHeight * 0.75, 130, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/4gPcZVN.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'PostgreSQL',
+        render: { fillStyle: '#336791' },
+        ...pillOptions,
       });
-      const instagram = Bodies.rectangle(320, containerHeight * 0.18, 40, 40, {
-        id: 'instagramBody',
+      const mongodb = Bodies.rectangle(380, containerHeight * 0.3, 110, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/RStSwfG.png', xScale: 0.5, yScale: 0.5 } },
+        label: 'MongoDB',
+        render: { fillStyle: '#47a248' },
+        ...pillOptions,
+      });
+      const graphql = Bodies.rectangle(550, containerHeight * 0.65, 100, 40, {
+        chamfer: { radius },
+        label: 'GraphQL',
+        render: { fillStyle: '#e10098' },
+        ...pillOptions,
+      });
+      const restapi = Bodies.rectangle(320, containerHeight * 0.75, 95, 40, {
+        chamfer: { radius },
+        label: 'REST API',
+        render: { fillStyle: '#ff6c40' },
+        ...pillOptions,
+      });
+
+      const docker = Bodies.rectangle(450, containerHeight * 0.7, 95, 40, {
+        chamfer: { radius },
+        label: 'Docker',
+        render: { fillStyle: '#2496ed' },
+        ...pillOptions,
+      });
+      const aws = Bodies.rectangle(130, containerHeight * 0.2, 60, 40, {
+        chamfer: { radius },
+        label: 'AWS',
+        render: { fillStyle: '#ff9900' },
+        ...pillOptions,
+      });
+      const git = Bodies.rectangle(250, containerHeight * 0.25, 55, 40, {
+        chamfer: { radius },
+        label: 'Git',
+        render: { fillStyle: '#f05032' },
+        ...pillOptions,
+      });
+      const instagram = Bodies.rectangle(480, containerHeight * 0.2, 110, 40, {
+        chamfer: { radius },
+        label: 'Instagram',
+        render: { fillStyle: '#e4405f' },
         url: 'https://www.instagram.com/fuse.blog/',
+        ...pillOptions,
       });
-      const random = Bodies.rectangle(230, containerHeight * 0.18, 112, 40, {
+      const star = Bodies.rectangle(580, containerHeight * 0.35, 60, 40, {
         chamfer: { radius },
-        render: { sprite: { texture: 'https://i.imgur.com/YS51eIC.png', xScale: 0.5, yScale: 0.5 } },
+        label: '⭐ Like',
+        render: { fillStyle: '#fbbf24' },
+        ...pillOptions,
       });
 
-      // add all of the bodies to the world
+      // Skill logo circles - completely mixed with pills
+      const skillLogoBodies = skillLogos.map((skill, index) => {
+        const xPos = 100 + (index % 8) * 60;
+        const yPos = containerHeight * 0.15 + Math.floor(index / 8) * 80;
+        const circleRadius = 26;
+        return Bodies.circle(xPos, yPos, circleRadius, {
+          label: skill.name,
+          skillLogoSrc: skill.src,
+          render: { fillStyle: 'transparent' },
+          ...circleOptions,
+        });
+      });
+
+      // Preload images
+      skillLogos.forEach((skill) => {
+        const img = new Image();
+        img.src = skill.src;
+        imageCacheRef.current[skill.src] = img;
+      });
+
+      // Add all bodies to world
       World.add(world, [
         ground,
         wallLeft,
         wallRight,
         roof,
-        illustration,
-        art,
-        threeD,
-        graphic,
-        photo,
-        documentary,
-        animation,
-        vintage,
-        short,
-        website,
-        article,
-        music,
-        star,
-        about,
+        react,
+        angular,
+        typescript,
+        javascript,
+        nestjs,
+        dotnet,
+        nodejs,
+        csharp,
+        postgresql,
+        mongodb,
+        graphql,
+        restapi,
+        docker,
+        aws,
+        git,
         instagram,
-        random,
+        star,
+        ...skillLogoBodies,
       ]);
 
-      // add mouse control
+      // Mouse control
       const mouse = Mouse.create(render.canvas);
       const mouseConstraint = MouseConstraint.create(engine, {
         mouse: mouse,
@@ -192,42 +288,31 @@ const MatterPills = () => {
       });
 
       World.add(world, mouseConstraint);
-
-      // keep the mouse in sync with rendering
       render.mouse = mouse;
 
-      // Allow page scrolling in matter.js window
+      // Allow page scrolling
       mouse.element.removeEventListener('mousewheel', mouse.mousewheel);
       mouse.element.removeEventListener('DOMMouseScroll', mouse.mousewheel);
 
-      // Detect clicks vs. drags
+      // Click detection
       let click = false;
-
       const handleMouseDown = () => (click = true);
       const handleMouseMove = () => (click = false);
-      const handleMouseUp = () => console.log(click ? 'click' : 'drag');
 
       document.addEventListener('mousedown', handleMouseDown);
       document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
 
-      // Create a On-Mouseup Event-Handler
       Events.on(mouseConstraint, 'mouseup', function (event) {
         const mouseConstraintEvent = event.source;
         const bodies = engine.world.bodies;
         if (!mouseConstraintEvent.bodyB) {
           for (let i = 0; i < bodies.length; i++) {
             const body = bodies[i];
-            // Check if clicked or dragged
             if (click === true) {
               if (Bounds.contains(body.bounds, mouseConstraintEvent.mouse.position)) {
                 const bodyUrl = body.url;
-                console.log('Body.Url >> ' + bodyUrl);
-                // Hyperlinking feature
                 if (bodyUrl != undefined) {
-                  // window.location.href = bodyUrl;
                   window.open(bodyUrl, '_blank');
-                  console.log('Hyperlink was opened');
                 }
                 break;
               }
@@ -236,15 +321,56 @@ const MatterPills = () => {
         }
       });
 
-      // create a runner using the modern API
+      // Runner
       const runner = Runner.create();
       runnerRef.current = runner;
 
-      // run the engine and renderer
+      // Custom rendering for skill logo images
+      Events.on(render, 'afterRender', function () {
+        const context = render.context;
+        const bodies = Composite.allBodies(world);
+        const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+        const themeTextColor = isDarkTheme ? '#ffffff' : '#000000';
+
+        context.font = 'bold 13px Inter, -apple-system, sans-serif';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+
+        bodies.forEach((body) => {
+          // Skip walls
+          if (body.isStatic) return;
+
+          // Skill logos - draw images
+          if (body.skillLogoSrc) {
+            const img = imageCacheRef.current[body.skillLogoSrc];
+            if (img && img.complete) {
+              const size = 44;
+              context.save();
+              context.translate(body.position.x, body.position.y);
+              context.rotate(body.angle);
+              context.drawImage(img, -size / 2, -size / 2, size, size);
+              context.restore();
+            }
+            return;
+          }
+
+          // Pills - draw text labels
+          if (body.label && body.label !== 'Ground') {
+            context.save();
+            context.translate(body.position.x, body.position.y);
+            context.rotate(body.angle);
+            context.fillStyle = themeTextColor;
+            context.fillText(body.label, 0, 0);
+            context.restore();
+          }
+        });
+      });
+
+      // Run engine
       Runner.run(runner, engine);
       Render.run(render);
 
-      // Handle window resize
+      // Resize handler
       const handleResize = () => {
         const rect = container.getBoundingClientRect();
         render.canvas.width = rect.width;
@@ -255,25 +381,7 @@ const MatterPills = () => {
 
       window.addEventListener('resize', handleResize);
 
-      // Cleanup
-      return () => {
-        document.removeEventListener('mousedown', handleMouseDown);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        window.removeEventListener('resize', handleResize);
-
-        Runner.stop(runner);
-        Render.stop(render);
-        Engine.clear(engine);
-        if (render.canvas) {
-          render.canvas.remove();
-        }
-        if (render.textures) {
-          Object.values(render.textures).forEach((texture) => texture.destroy());
-        }
-      };
-
-      // Listen for theme changes
+      // Theme observer
       const themeObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.attributeName === 'data-theme') {
@@ -288,10 +396,28 @@ const MatterPills = () => {
 
       themeObserver.observe(document.documentElement, { attributes: true });
 
-      return () => themeObserver.disconnect();
+      // Cleanup
+      return () => {
+        document.removeEventListener('mousedown', handleMouseDown);
+        document.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('resize', handleResize);
+
+        Runner.stop(runner);
+        Render.stop(render);
+        Engine.clear(engine);
+        if (render.canvas) {
+          render.canvas.remove();
+        }
+        if (render.textures) {
+          Object.values(render.textures).forEach((texture) => texture.destroy());
+        }
+
+        themeObserver.disconnect();
+        hasStartedRef.current = false;
+      };
     };
 
-    // Set up Intersection Observer to start animation when visible
+    // Start when visible
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
